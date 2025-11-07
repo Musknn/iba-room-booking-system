@@ -1,249 +1,38 @@
-/* App.css */
 .App {
   text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.app-header {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.app-header h1 {
-  color: #333;
-  margin: 0;
-  font-size: 2.5rem;
-}
-
-.app-header p {
-  color: #666;
-  margin: 0.5rem 0 0 0;
-  font-size: 1.2rem;
-}
-
-.main-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-/* Room Grid */
-.room-section h2 {
-  color: white;
-  margin-bottom: 2rem;
-  font-size: 2rem;
-}
-
-.room-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-.room-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 3px solid transparent;
-}
-
-.room-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.room-card.available {
-  border-color: #4CAF50;
-}
-
-.room-card.unavailable {
-  border-color: #f44336;
-  opacity: 0.7;
-}
-
-.room-card h3 {
-  color: #333;
-  margin: 0 0 0.5rem 0;
-  font-size: 1.4rem;
-}
-
-.room-card p {
-  color: #666;
-  margin: 0.3rem 0;
-}
-
-.status {
-  font-weight: bold;
-  margin: 1rem 0;
-}
-
-.book-btn {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  width: 100%;
-}
-
-.book-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.book-btn:hover:not(:disabled) {
-  background: #45a049;
-}
-
-/* Booking Form */
-.booking-section {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  margin-bottom: 3rem;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.booking-section h2 {
-  color: #333;
-  margin-bottom: 1.5rem;
-}
-
-.booking-form {
-  text-align: left;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #333;
-  font-weight: bold;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.8rem;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.form-actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.submit-btn {
-  background: #4CAF50;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
   color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  flex: 1;
 }
 
-.cancel-btn {
-  background: #f44336;
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  flex: 1;
+.App-link {
+  color: #61dafb;
 }
 
-.submit-btn:hover {
-  background: #45a049;
-}
-
-.cancel-btn:hover {
-  background: #d32f2f;
-}
-
-/* Statistics */
-.stats-section h2 {
-  color: white;
-  margin-bottom: 2rem;
-  font-size: 2rem;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-.stat-card {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.stat-card h3 {
-  color: #666;
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
-}
-
-.stat-card p {
-  color: #333;
-  margin: 0;
-  font-size: 2rem;
-  font-weight: bold;
-}
-
-/* Footer */
-.app-footer {
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 1.5rem;
-  margin-top: 3rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .room-grid {
-    grid-template-columns: 1fr;
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
   }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .app-header h1 {
-    font-size: 2rem;
+  to {
+    transform: rotate(360deg);
   }
 }
