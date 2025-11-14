@@ -41,11 +41,11 @@ const BuildingIncharge = ({ onLogout, userRole }) => {
           borderRadius: '10px',
           marginBottom: '25px',
           boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          borderLeft: '5px solid #b32a2aff'
-        }}>
+          borderLeft: '5px solid #800000',
+                  }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#b32a2aff', margin: 0 }}>
+              <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#800000', margin: 0 }}>
                 Building Incharge Dashboard
               </h1>
               <p style={{ color: '#666', margin: '5px 0 0 0' }}>
@@ -55,7 +55,7 @@ const BuildingIncharge = ({ onLogout, userRole }) => {
             <button 
               onClick={onLogout}
               style={{
-                background: '#b32a2aff',
+                background:' #800000',
                 color: 'white',
                 padding: '10px 20px',
                 border: 'none',
@@ -81,10 +81,10 @@ const BuildingIncharge = ({ onLogout, userRole }) => {
               key={feature.id}
               onClick={() => setActiveTab(feature.id)}
               style={{
-                background: activeTab === feature.id ? '#b32a2aff' : 'white',
+                background: activeTab === feature.id ? '#800000' : 'white',
                 color: activeTab === feature.id ? 'white' : '#333',
                 padding: '25px 20px',
-                border: `2px solid ${activeTab === feature.id ? '#b32a2aff' : '#e0e0e0'}`,
+                border: `2px solid ${activeTab === feature.id ? '#800000' : '#e0e0e0'}`,
                 borderRadius: '10px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
@@ -134,28 +134,28 @@ const BuildingIncharge = ({ onLogout, userRole }) => {
         }}>
           {activeTab === 'room-availability' && (
             <div>
-              <h2 style={{ color: '#b32a2aff', marginBottom: '20px' }}>Manage Room Availability</h2>
+              <h2 style={{ color: '#800000', marginBottom: '20px' }}>Manage Room Availability</h2>
               <p>Room availability management content coming soon...</p>
             </div>
           )}
           
           {activeTab === 'building-usage' && (
             <div>
-              <h2 style={{ color: '#b32a2aff', marginBottom: '20px' }}>Monitor Building Usage</h2>
+              <h2 style={{ color: '#800000', marginBottom: '20px' }}>Monitor Building Usage</h2>
               <p>Building usage monitoring content coming soon...</p>
             </div>
           )}
           
           {activeTab === 'maintenance' && (
             <div>
-              <h2 style={{ color: '#b32a2aff', marginBottom: '20px' }}>Handle Maintenance Requests</h2>
+              <h2 style={{ color: '#800000', marginBottom: '20px' }}>Handle Maintenance Requests</h2>
               <p>Maintenance requests management content coming soon...</p>
             </div>
           )}
           
           {activeTab === 'reports' && (
             <div>
-              <h2 style={{ color: '#b32a2aff', marginBottom: '20px' }}>Generate Building Reports</h2>
+              <h2 style={{ color: '#800000', marginBottom: '20px' }}>Generate Building Reports</h2>
               <p>Report generation content coming soon...</p>
             </div>
           )}
