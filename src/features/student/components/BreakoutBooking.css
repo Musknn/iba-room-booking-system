@@ -1,0 +1,126 @@
+.breakout-booking h2 {
+  color: #800000;
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.breakout-booking > p {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+.filters-section {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #800000;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.filter-select {
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #800000;
+  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+}
+
+.available-breakout-rooms h3 {
+  color: #800000;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.breakout-rooms-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.breakout-room-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.breakout-room-card:hover {
+  border-color: #800000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.breakout-room-card h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.breakout-room-card p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.features {
+  color: #800000 !important;
+  font-weight: 600;
+  font-size: 13px !important;
+}
+
+.book-btn {
+  background: #800000;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.book-btn:hover {
+  background: #660000;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .filters-section {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .filter-group {
+    min-width: 100%;
+  }
+  
+  .breakout-rooms-list {
+    grid-template-columns: 1fr;
+  }
+}

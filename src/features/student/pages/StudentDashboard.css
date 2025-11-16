@@ -1,0 +1,254 @@
+.student-dashboard {
+  min-height: 100vh;
+  background: #f8f9fa;
+  display: flex;
+}
+
+/* Left Sidebar - Navigation (Wider) */
+.navigation-sidebar {
+  width: 400px; /* Increased from 280px */
+  background: #800000;
+  color: white;
+  padding: 35px 25px; /* Increased padding */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+/* User Info at Top of Sidebar */
+.user-info-section {
+  text-align: center;
+  margin-bottom: 35px; /* Increased */
+  padding-bottom: 25px; /* Increased */
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.profile-circle {
+  width: 90px; /* Slightly larger */
+  height: 90px; /* Slightly larger */
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px; /* Increased */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.profile-initial {
+  font-size: 32px; /* Slightly larger */
+  font-weight: 700;
+  color: #800000;
+}
+
+.user-name {
+  font-size: 20px; /* Larger */
+  font-weight: 600;
+  margin: 0 0 8px 0; /* Increased */
+}
+
+.user-program {
+  font-size: 15px; /* Larger */
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* Navigation Tabs */
+.navigation-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Slightly more gap */
+  flex: 1;
+}
+
+.nav-tab {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  padding: 18px 22px; /* More padding */
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 15px; /* Slightly larger font */
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 15px; /* More gap between icon and text */
+}
+
+.nav-tab:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+}
+
+.nav-tab.active {
+  background: white;
+  color: #800000;
+  font-weight: 600;
+}
+
+.nav-icon {
+  font-size: 20px; /* Larger icons */
+  width: 24px; /* More space for icons */
+  text-align: center;
+}
+
+/* Logout Button at Bottom */
+.logout-section {
+  margin-top: auto;
+  padding-top: 25px; /* Increased */
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.sidebar-logout-btn {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 14px; /* More padding */
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px; /* Slightly larger */
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.sidebar-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Main Content Area */
+.dashboard-main {
+  flex: 1;
+  margin-left: 320px; /* Match sidebar width */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+}
+
+/* Header */
+.dashboard-header {
+  background: white;
+  padding: 25px 45px; /* Slightly more padding */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header-title {
+  color: #800000;
+  font-size: 26px; /* Slightly larger */
+  font-weight: 700;
+  margin: 0 0 8px 0; /* Increased */
+}
+
+.header-subtitle {
+  color: #666;
+  font-size: 15px; /* Slightly larger */
+  margin: 0;
+}
+
+/* Content Area */
+.content-area {
+  flex: 1;
+  padding: 35px 45px; /* More padding */
+  overflow-y: auto;
+  background: #f8f9fa;
+}
+
+.content-panel {
+  background: white;
+  border-radius: 12px; /* Slightly more rounded */
+  padding: 35px; /* More padding */
+  box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+  border: 1px solid #e0e0e0;
+  min-height: 500px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .navigation-sidebar {
+    width: 280px; /* Slightly smaller on tablets */
+    padding: 30px 20px;
+  }
+  
+  .dashboard-main {
+    margin-left: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .student-dashboard {
+    flex-direction: column;
+  }
+  
+  .navigation-sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 25px 20px;
+  }
+  
+  .navigation-tabs {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .nav-tab {
+    flex: 1;
+    min-width: 140px; /* Wider tabs on mobile */
+    text-align: center;
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px 10px;
+  }
+  
+  .nav-tab:hover {
+    transform: translateY(-2px);
+  }
+  
+  .dashboard-main {
+    margin-left: 0;
+  }
+  
+  .dashboard-header {
+    padding: 20px 25px;
+  }
+  
+  .content-area {
+    padding: 25px 20px;
+  }
+  
+  .content-panel {
+    padding: 25px;
+    min-height: 400px;
+  }
+  
+  .profile-circle {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .profile-initial {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-tab {
+    min-width: 120px; /* Adjust for very small screens */
+    font-size: 14px;
+    padding: 12px 8px;
+  }
+  
+  .nav-icon {
+    font-size: 18px;
+  }
+}
