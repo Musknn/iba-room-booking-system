@@ -1,50 +1,58 @@
 import React, { useState } from 'react';
 import './App.css';
 import LoginForm from './features/auth/components/LoginForm';
-import AdminDashboard from './features/admin/pages/AdminDashboard';
 import StudentDashboard from './features/student/pages/StudentDashboard';
-import backgroundImage from './assets/images/iba_background.jpeg';
+import AdminDashboard from './features/admin/pages/AdminDashboard';
 
 function App() {
   const [currentView, setCurrentView] = useState('login');
-  const [userType, setUserType] = useState('student');
-  const [userRole, setUserRole] = useState('');
+  const [userType, setUserType] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
-  const handleLogin = (type, role = '') => {
+  const handleLogin = (type, role = null) => {
     setUserType(type);
     setUserRole(role);
-    setCurrentView(type);
+    if (type === 'student') {
+      setCurrentView('student-dashboard');
+    } else if (type === 'admin') {
+      setCurrentView('admin-dashboard');
+    }
   };
 
   const handleLogout = () => {
     setCurrentView('login');
-    setUserRole('');
+    setUserType(null);
+    setUserRole(null);
   };
 
-  // Only show background image for login screen
-  const appStyle = currentView === 'login' ? {
-    backgroundImage: `url(${backgroundImage})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    minHeight: '100vh'
-  } : {
-    background: '#f8f9fa', // Solid background for dashboard views
-    minHeight: '100vh'
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'login':
+        return (
+          <div className="login-background">
+            <div className="login-center-container">
+              <LoginForm onLogin={handleLogin} />
+            </div>
+          </div>
+        );
+      case 'student-dashboard':
+        return <StudentDashboard onLogout={handleLogout} />;
+      case 'admin-dashboard':
+        return <AdminDashboard onLogout={handleLogout} userRole={userRole} />;
+      default:
+        return (
+          <div className="login-background">
+            <div className="login-center-container">
+              <LoginForm onLogin={handleLogin} />
+            </div>
+          </div>
+        );
+    }
   };
 
   return (
-    <div className="App" style={appStyle}>
-      {currentView === 'login' && (
-        <LoginForm onLogin={handleLogin} onUserTypeChange={setUserType} />
-      )}
-      
-      {currentView === 'admin' && (
-        <AdminDashboard onLogout={handleLogout} userRole={userRole} />
-      )}
-      
-      {currentView === 'student' && (
-        <StudentDashboard onLogout={handleLogout} />
-      )}
+    <div className="App">
+      {renderCurrentView()}
     </div>
   );
 }

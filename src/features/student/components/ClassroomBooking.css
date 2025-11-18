@@ -1,30 +1,37 @@
+.classroom-booking {
+  width: 100%;
+}
+
 .classroom-booking h2 {
-  color: #800000;
+  color: #550707;
   margin-bottom: 15px;
   font-size: 24px;
+  font-weight: 600;
 }
 
 .classroom-booking > p {
   color: #666;
   margin-bottom: 30px;
   font-size: 16px;
+  line-height: 1.5;
 }
 
 .filters-section {
   display: flex;
-  gap: 20px;
+  gap: 25px;
   margin-bottom: 30px;
-  padding: 20px;
+  padding: 25px 30px;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 4px solid #800000;
+  border-left: 4px solid #550707;
+  width: 100%;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 180px;
+  min-width: 200px;
 }
 
 .filter-group label {
@@ -34,42 +41,45 @@
 }
 
 .filter-select {
-  padding: 10px 12px;
+  padding: 12px 15px;
   border: 2px solid #e0e0e0;
   border-radius: 6px;
   font-size: 14px;
   transition: all 0.3s ease;
   background: white;
+  width: 100%;
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #800000;
-  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+  border-color: #550707;
+  box-shadow: 0 0 0 3px rgba(85, 7, 7, 0.1);
 }
 
 .available-classrooms h3 {
-  color: #800000;
+  color: #550707;
   margin-bottom: 20px;
   font-size: 20px;
+  font-weight: 600;
 }
 
 .classrooms-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  width: 100%;
 }
 
 .classroom-card {
   background: white;
-  padding: 20px;
+  padding: 25px;
   border-radius: 8px;
   border: 2px solid #e0e0e0;
   transition: all 0.3s ease;
 }
 
 .classroom-card:hover {
-  border-color: #800000;
+  border-color: #550707;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
@@ -78,6 +88,7 @@
   margin: 0 0 10px 0;
   color: #333;
   font-size: 18px;
+  font-weight: 600;
 }
 
 .classroom-card p {
@@ -86,8 +97,14 @@
   font-size: 14px;
 }
 
+.features {
+  color: #550707 !important;
+  font-weight: 600;
+  font-size: 13px !important;
+}
+
 .book-btn {
-  background: #800000;
+  background: #550707;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -100,14 +117,28 @@
 }
 
 .book-btn:hover {
-  background: #660000;
+  background: #450606;
   transform: translateY(-1px);
+}
+
+/* Ensure 3-4 cards per row */
+@media (min-width: 1200px) {
+  .classrooms-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1400px) {
+  .classrooms-list {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
   .filters-section {
     flex-direction: column;
     gap: 15px;
+    padding: 20px;
   }
   
   .filter-group {
@@ -116,5 +147,10 @@
   
   .classrooms-list {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .classroom-card {
+    padding: 20px;
   }
 }

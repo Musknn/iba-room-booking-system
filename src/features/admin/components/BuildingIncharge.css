@@ -1,0 +1,14 @@
+/* src/features/admin/components/BuildingIncharge.css */ 
+@import '../../shared/SharedDashboard.css';
+
+.building-incharge-dashboard {
+  min-height: 100vh;
+  background: #f8f9fa;
+  display: flex;
+}
+
+.building-incharge-content {
+  width: 100%;
+}
+
+/* Add Building Incharge specific styles here if needed */

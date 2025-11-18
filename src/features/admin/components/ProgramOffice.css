@@ -1,0 +1,33 @@
+@import '../../shared/SharedDashboard.css';
+
+.program-office-dashboard {
+  min-height: 100vh;
+  background: #f8f9fa;
+  display: flex;
+}
+
+/* Program Office Specific Styles */
+.program-office-content {
+  width: 100%;
+}
+
+.forms-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 35px;
+  margin-bottom: 35px;
+}
+
+.building-form,
+.room-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Responsive for forms grid */
+@media (max-width: 1024px) {
+  .forms-grid {
+    grid-template-columns: 1fr;
+  }
+}

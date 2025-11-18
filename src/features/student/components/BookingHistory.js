@@ -12,8 +12,10 @@ const BookingHistory = () => {
   return (
     <div className="booking-history">
       <h2>Booking History</h2>
-      <div className="bookings-table">
-        <table>
+      <p>View and manage your reservations</p>
+      
+      <div className="bookings-container">
+        <table className="bookings-table">
           <thead>
             <tr>
               <th>Room</th>

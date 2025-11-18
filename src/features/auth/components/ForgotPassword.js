@@ -1,4 +1,3 @@
-// src/features/auth/components/ForgotPassword.js
 import React, { useState } from 'react';
 import Button from '../../../shared/components/ui/Button';
 

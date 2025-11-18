@@ -1,166 +1,117 @@
 import React, { useState } from 'react';
+import './BuildingIncharge.css'; // This now imports shared styles
 
 const BuildingIncharge = ({ onLogout, userRole }) => {
   const [activeTab, setActiveTab] = useState('room-availability');
 
-  // Feature buttons data
-  const features = [
-    {
-      id: 'room-availability',
-      title: 'Manage Room Availability',
-      description: 'Update room status and availability schedules',
-      icon: ''
-    },
-    {
-      id: 'building-usage',
-      title: 'Monitor Building Usage',
-      description: 'View real-time building occupancy and usage statistics',
-      icon: ''
-    },
-    {
-      id: 'maintenance',
-      title: 'Handle Maintenance Requests',
-      description: 'Manage maintenance issues and repair requests',
-      icon: ''
-    },
-    {
-      id: 'reports',
-      title: 'Generate Building Reports',
-      description: 'Create usage reports and analytics',
-      icon: ''
-    }
+  const navigationItems = [
+    { id: 'room-availability', label: 'Manage Room Availability' },
+    { id: 'building-usage', label: 'Monitor Building Usage' },
+    { id: 'maintenance', label: 'Handle Maintenance Requests' },
+    { id: 'reports', label: 'Generate Building Reports' }
   ];
 
-  return (
-    <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '20px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ 
-          background: 'white', 
-          padding: '25px', 
-          borderRadius: '10px',
-          marginBottom: '25px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          borderLeft: '5px solid #800000',
-                  }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#800000', margin: 0 }}>
-                Building Incharge Dashboard
-              </h1>
-              <p style={{ color: '#666', margin: '5px 0 0 0' }}>
-                Manage building operations and daily activities
-              </p>
-            </div>
-            <button 
-              onClick={onLogout}
-              style={{
-                background:' #800000',
-                color: 'white',
-                padding: '10px 20px',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              Logout
-            </button>
+  const getHeaderInfo = () => {
+    const info = {
+      'room-availability': { title: 'Manage Room Availability', subtitle: 'Update room status and availability schedules' },
+      'building-usage': { title: 'Monitor Building Usage', subtitle: 'View real-time building occupancy and usage statistics' },
+      'maintenance': { title: 'Handle Maintenance Requests', subtitle: 'Manage maintenance issues and repair requests' },
+      'reports': { title: 'Generate Building Reports', subtitle: 'Create usage reports and analytics' }
+    };
+    return info[activeTab] || { title: 'Building Incharge Dashboard', subtitle: 'Manage building operations and daily activities' };
+  };
+
+  const renderMainContent = () => {
+    switch (activeTab) {
+      case 'room-availability':
+        return (
+          <div className="building-incharge-content">
+            <h2>Manage Room Availability</h2>
+            <p>Room availability management content coming soon...</p>
           </div>
+        );
+      case 'building-usage':
+        return (
+          <div className="building-incharge-content">
+            <h2>Monitor Building Usage</h2>
+            <p>Building usage monitoring content coming soon...</p>
+          </div>
+        );
+      case 'maintenance':
+        return (
+          <div className="building-incharge-content">
+            <h2>Handle Maintenance Requests</h2>
+            <p>Maintenance requests management content coming soon...</p>
+          </div>
+        );
+      case 'reports':
+        return (
+          <div className="building-incharge-content">
+            <h2>Generate Building Reports</h2>
+            <p>Report generation content coming soon...</p>
+          </div>
+        );
+      default:
+        return (
+          <div className="building-incharge-content">
+            <h2>Building Incharge Dashboard</h2>
+            <p>Select an option from the sidebar to get started.</p>
+          </div>
+        );
+    }
+  };
+
+  const headerInfo = getHeaderInfo();
+
+  return (
+    <div className="building-incharge-dashboard">
+      {/* Left Sidebar - Navigation */}
+      <aside className="navigation-sidebar">
+        {/* User Info Section */}
+        <div className="user-info-section">
+          <div className="profile-circle">
+            <span className="profile-initial">B</span>
+          </div>
+          <h3 className="user-name">Building Incharge</h3>
+          <p className="user-program">Administrator</p>
         </div>
 
-        {/* Feature Buttons Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '20px',
-          marginBottom: '30px'
-        }}>
-          {features.map(feature => (
+        {/* Navigation Tabs */}
+        <nav className="navigation-tabs">
+          {navigationItems.map(item => (
             <button
-              key={feature.id}
-              onClick={() => setActiveTab(feature.id)}
-              style={{
-                background: activeTab === feature.id ? '#800000' : 'white',
-                color: activeTab === feature.id ? 'white' : '#333',
-                padding: '25px 20px',
-                border: `2px solid ${activeTab === feature.id ? '#800000' : '#e0e0e0'}`,
-                borderRadius: '10px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                textAlign: 'left'
-              }}
-              onMouseOver={(e) => {
-                if (activeTab !== feature.id) {
-                  e.target.style.transform = 'translateY(-3px)';
-                  e.target.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
-                }
-              }}
-              onMouseOut={(e) => {
-                if (activeTab !== feature.id) {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = 'none';
-                }
-              }}
+              key={item.id}
+              className={`nav-tab ${activeTab === item.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(item.id)}
             >
-              <div style={{ fontSize: '2.5rem', marginBottom: '15px' }}>
-                {feature.icon}
-              </div>
-              <h3 style={{ 
-                fontSize: '1.3rem', 
-                fontWeight: 'bold', 
-                marginBottom: '10px' 
-              }}>
-                {feature.title}
-              </h3>
-              <p style={{ 
-                fontSize: '0.9rem', 
-                opacity: activeTab === feature.id ? 0.9 : 0.7,
-                lineHeight: '1.4'
-              }}>
-                {feature.description}
-              </p>
+              <span>{item.label}</span>
             </button>
           ))}
-        </div>
+        </nav>
 
-        {/* Feature Content Area */}
-        <div style={{ 
-          background: 'white', 
-          padding: '30px', 
-          borderRadius: '10px', 
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          minHeight: '400px'
-        }}>
-          {activeTab === 'room-availability' && (
-            <div>
-              <h2 style={{ color: '#800000', marginBottom: '20px' }}>Manage Room Availability</h2>
-              <p>Room availability management content coming soon...</p>
-            </div>
-          )}
-          
-          {activeTab === 'building-usage' && (
-            <div>
-              <h2 style={{ color: '#800000', marginBottom: '20px' }}>Monitor Building Usage</h2>
-              <p>Building usage monitoring content coming soon...</p>
-            </div>
-          )}
-          
-          {activeTab === 'maintenance' && (
-            <div>
-              <h2 style={{ color: '#800000', marginBottom: '20px' }}>Handle Maintenance Requests</h2>
-              <p>Maintenance requests management content coming soon...</p>
-            </div>
-          )}
-          
-          {activeTab === 'reports' && (
-            <div>
-              <h2 style={{ color: '#800000', marginBottom: '20px' }}>Generate Building Reports</h2>
-              <p>Report generation content coming soon...</p>
-            </div>
-          )}
+        {/* Logout Section */}
+        <div className="logout-section">
+          <button onClick={onLogout} className="sidebar-logout-btn">
+            Logout
+          </button>
         </div>
-      </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="dashboard-main">
+        {/* Header */}
+        <header className="dashboard-header">
+          <h1 className="header-title">{headerInfo.title}</h1>
+          <p className="header-subtitle">{headerInfo.subtitle}</p>
+        </header>
+
+        {/* Content Area - Full width */}
+        <div className="content-area-full">
+          <div className="content-panel-full">
+            {renderMainContent()}
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

@@ -26,6 +26,8 @@ const Announcements = () => {
   return (
     <div className="announcements">
       <h2>University Announcements</h2>
+      <p>Latest university updates and notices</p>
+      
       <div className="announcements-list">
         {announcements.map(announcement => (
           <div key={announcement.id} className="announcement-card">

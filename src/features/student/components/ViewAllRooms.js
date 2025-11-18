@@ -4,7 +4,7 @@ import './ViewAllRooms.css';
 const ViewAllRooms = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBuilding, setSelectedBuilding] = useState('all');
-  
+
   const rooms = [
     { id: 1, name: 'Room 101', capacity: 20, floor: '1st', building: 'Building A', available: true },
     { id: 2, name: 'Room 102', capacity: 15, floor: '1st', building: 'Building A', available: false },
@@ -28,12 +28,12 @@ const ViewAllRooms = () => {
   return (
     <div className="view-all-rooms">
       <h2>All Rooms</h2>
-      
+
       {/* Filters Section */}
       <div className="filters-section">
         <div className="filter-group">
           <label htmlFor="buildingFilter">Filter by Building:</label>
-          <select 
+          <select
             id="buildingFilter"
             value={selectedBuilding}
             onChange={(e) => setSelectedBuilding(e.target.value)}
@@ -46,7 +46,7 @@ const ViewAllRooms = () => {
             ))}
           </select>
         </div>
-        
+
         <div className="filter-group">
           <label htmlFor="searchRoom">Search Classroom:</label>
           <input
@@ -58,7 +58,7 @@ const ViewAllRooms = () => {
             className="search-input"
           />
         </div>
-        
+
         <div className="filter-stats">
           Showing {filteredRooms.length} of {rooms.length} rooms
         </div>
@@ -78,7 +78,7 @@ const ViewAllRooms = () => {
               <p><strong>Floor:</strong> {room.floor}</p>
               <p><strong>Capacity:</strong> {room.capacity} people</p>
               <div className={`availability ${room.available ? 'available' : 'occupied'}`}>
-                {room.available ? 'Available' : 'Occupied'}
+                {room.available ? 'AVAILABLE' : 'OCCUPIED'}
               </div>
             </div>
           ))

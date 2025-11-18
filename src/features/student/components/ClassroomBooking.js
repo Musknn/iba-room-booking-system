@@ -45,20 +45,21 @@ const ClassroomBooking = () => {
               <h4>Room 101</h4>
               <p>Capacity: 50 students</p>
               <p>Building A, 1st Floor</p>
+              <p className="features">Projector • Whiteboard</p>
               <button className="book-btn">Book Now</button>
             </div>
-            
             <div className="classroom-card">
               <h4>Room 102</h4>
               <p>Capacity: 40 students</p>
               <p>Building A, 1st Floor</p>
+              <p className="features">Smart Board • Audio System</p>
               <button className="book-btn">Book Now</button>
             </div>
-            
             <div className="classroom-card">
               <h4>Room 201</h4>
               <p>Capacity: 60 students</p>
               <p>Building B, 2nd Floor</p>
+              <p className="features">Projector • Video Conferencing</p>
               <button className="book-btn">Book Now</button>
             </div>
           </div>

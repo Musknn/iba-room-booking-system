@@ -1,4 +1,3 @@
-// src/features/auth/hooks/useAuth.js
 import { useState } from 'react';
 
 export const useAuth = () => {
