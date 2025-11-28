@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const buildingRoutes = require('./routes/buildings');
-const authRoutes = require('./routes/auth');  // ← ADD THIS LINE
+const authRoutes = require('./routes/auth');
+const bookingRoutes = require('./routes/booking');  // Add this line
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,7 +13,8 @@ app.use(express.json());
 
 // Routes
 app.use('/api/buildings', buildingRoutes);
-app.use('/api/auth', authRoutes);  // ← ADD THIS LINE
+app.use('/api/auth', authRoutes);
+app.use('/api/booking', bookingRoutes);  // Add this line
 
 // Test route
 app.get('/api/test', (req, res) => {
