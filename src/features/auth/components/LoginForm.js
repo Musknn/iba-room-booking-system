@@ -127,14 +127,15 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
       if (response.ok && result.success) {
         // Successful login - pass user data to parent
         console.log('Login successful, user data:', result.user); // Debug log
-        
-        if (onLogin) {
-          onLogin(result.userType, result.role, result.user); // Pass user data
-        }
-        // Save ERP to localStorage for bookings
-localStorage.setItem("erp", result.user.erp);
-localStorage.setItem("name", result.user.name);
-localStorage.setItem("role", result.role);
+        // DO NOT change backend role formatting
+const role = result.role;        // "ProgramOffice" or "BuildingIncharge"
+const type = result.userType;    // "admin" or "student"
+
+if (onLogin) {
+  onLogin(type, role, result.user);
+}
+
+localStorage.setItem("role", role);
 
       } else {
         alert(`❌ ${result.error || 'Login failed'}`);

@@ -74,13 +74,8 @@ const AddRoom = () => {
               onChange={(e) => setForm({ ...form, roomType: e.target.value })}
             >
               <option value="">Select</option>
-              <option value="Classroom">Classroom</option>
-              <option value="Lab">Lab</option>
-              <option value="Conference">Conference Room</option>
-              <option value="Breakout">Breakout Room</option>
-              <option value="Auditorium">Auditorium</option>
-              <option value="Study Room">Study Room</option>
-              <option value="Sports">Sports</option>
+              <option value="CLASSROOM">Classroom</option>
+              <option value="BREAKOUT">Breakout Room</option>
             </select>
           </div>
         </div>

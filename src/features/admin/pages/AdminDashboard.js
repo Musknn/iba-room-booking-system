@@ -49,9 +49,9 @@ const AdminDashboard = ({ onLogout, userRole }) => {
   // Render the appropriate dashboard based on role
   const renderDashboard = () => {
     switch (userRole) {
-      case 'program-office':
+      case 'ProgramOffice':
         return <ProgramOffice onLogout={onLogout} userRole={userRole} />;
-      case 'building-incharge':
+      case 'BuildingIncharge':
         return <BuildingIncharge onLogout={onLogout} userRole={userRole} />;
       default:
         return (

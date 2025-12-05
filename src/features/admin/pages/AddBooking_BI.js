@@ -16,7 +16,7 @@ const AddBooking_BI = () => {
   // 🔥 BI ERP from login
   const BI_ERP = Number(localStorage.getItem("erp")) || 0;
 
-  // Time slot conversion to match backend
+  // Time slot conversion
   const slotMap = {
     "08:30-09:45": { start: "08:30", end: "09:45" },
     "10:00-11:15": { start: "10:00", end: "11:15" },
@@ -34,7 +34,7 @@ const AddBooking_BI = () => {
       .catch((err) => console.log("Buildings Error:", err));
   }, []);
 
-  // ------------------- SEARCH ROOMS -------------------
+  // ------------------- SEARCH ONLY BREAKOUT ROOMS -------------------
   const handleSearchRooms = async () => {
     if (!form.slot || !form.date || !form.buildingId) {
       alert("Please fill all fields");
@@ -46,7 +46,7 @@ const AddBooking_BI = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/booking/available-rooms?date=${form.date}&startTime=${start}&endTime=${end}&buildingId=${form.buildingId}&roomType=Classroom`
+        `http://localhost:5000/api/booking/available-rooms?date=${form.date}&startTime=${start}&endTime=${end}&buildingId=${form.buildingId}&roomType=${"Breakout".toUpperCase()}`
       );
 
       const result = await response.json();
@@ -55,11 +55,11 @@ const AddBooking_BI = () => {
         setAvailableRooms(result.data);
         setStep(2);
       } else {
-        alert("No rooms available");
+        alert("No breakout rooms available");
       }
     } catch (error) {
       console.log(error);
-      alert("Error fetching available rooms");
+      alert("Error fetching breakout rooms");
     }
   };
 
@@ -102,11 +102,11 @@ const AddBooking_BI = () => {
 
   // ------------------- UI -------------------
 
-   // STEP 1
+  // STEP 1
   if (step === 1) {
     return (
       <div>
-        <h2>Add Booking (Building Incharge)</h2>
+        <h2>Add Booking (Breakout Rooms - Building Incharge)</h2>
 
         <div className="form-group">
           <label>Slot</label>
@@ -147,13 +147,13 @@ const AddBooking_BI = () => {
         </div>
 
         <button className="maroon-btn" onClick={handleSearchRooms}>
-          Search Available Rooms
+          Search Breakout Rooms
         </button>
       </div>
     );
   }
 
-  // STEP 2: SMALL ROOM CARD GRID (3 in a row)
+  // STEP 2
   if (step === 2) {
     return (
       <div>
@@ -161,7 +161,7 @@ const AddBooking_BI = () => {
           ← Back
         </button>
 
-        <h2>Available Rooms</h2>
+        <h2>Available Breakout Rooms</h2>
 
         <div
           style={{
@@ -182,7 +182,7 @@ const AddBooking_BI = () => {
                 boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
               }}
             >
-              <h3 style={{ margin: "0 0 6px" }}>{room.ROOM_NAME}</h3>
+              <h3>{room.ROOM_NAME}</h3>
               <p><b>Type:</b> {room.ROOM_TYPE}</p>
               <p><b>Building:</b> {room.BUILDING_NAME}</p>
 
@@ -203,8 +203,7 @@ const AddBooking_BI = () => {
     );
   }
 
-
-  // STEP 3: POPUP BOX (Like Student Version)
+  // STEP 3
   if (step === 3) {
     const selectedRoom = availableRooms.find(
       (r) => r.ROOM_ID === form.roomId
@@ -235,12 +234,12 @@ const AddBooking_BI = () => {
             boxShadow: "0 4px 16px rgba(0,0,0,0.25)"
           }}
         >
-          <h2>Confirm Booking</h2>
+          <h2>Confirm Breakout Room Booking</h2>
 
           <p><b>Room:</b> {selectedRoom?.ROOM_NAME}</p>
           <p><b>Building:</b> {selectedRoom?.BUILDING_NAME}</p>
           <p><b>Date:</b> {form.date}</p>
-          <p><b>Time:</b> {form.slot}</p>
+          <p><b>Slot:</b> {form.slot}</p>
           <p><b>ERP:</b> {BI_ERP}</p>
 
           <textarea

@@ -46,8 +46,8 @@ const AddBooking = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/booking/available-rooms?date=${form.date}&startTime=${start}&endTime=${end}&buildingId=${form.buildingId}&roomType=Classroom`
-      );
+        `http://localhost:5000/api/booking/available-rooms?date=${form.date}&startTime=${start}&endTime=${end}&buildingId=${form.buildingId}&roomType=${"Classroom".toUpperCase()}`
+ );
 
       const result = await response.json();
 

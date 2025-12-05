@@ -3,7 +3,7 @@ const cors = require('cors');
 const buildingRoutes = require('./routes/buildings');
 const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/booking');  // Add this line
-const manageBookingRoutes = require('./routes/manageBookings');
+
 
 // Add this line
 
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use('/api/buildings', buildingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/booking', bookingRoutes);  // Add this line
-app.use('/api/manage-bookings', manageBookingRoutes);  // Add this line
+
 
 
 // Test route

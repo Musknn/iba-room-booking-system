@@ -6,7 +6,8 @@ const AddBuilding = () => {
     name: "",
     inchargeName: "",
     inchargeEmail: "",
-    inchargeERP: ""
+    inchargeERP: "",
+    inchargePhone: ""
   });
 
   useEffect(() => {
@@ -20,26 +21,34 @@ const AddBuilding = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await fetch("http://localhost:5000/api/buildings/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: form.name,
-        inchargeERP: parseInt(form.inchargeERP),
-        inchargeName: form.inchargeName,
-        inchargeEmail: form.inchargeEmail,
-      }),
+  e.preventDefault();
+
+  const res = await fetch("http://localhost:5000/api/buildings/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      building_name: form.name,
+      incharge_erp: parseInt(form.inchargeERP),
+      incharge_name: form.inchargeName,
+      incharge_email: form.inchargeEmail,
+      phone_number: form.inchargePhone
+    }),
+  });
+
+  const result = await res.json();
+  alert(result.message);
+
+  if (res.ok) {
+    setForm({
+      name: "",
+      inchargeName: "",
+      inchargeEmail: "",
+      inchargeERP: "",
+      inchargePhone: ""
     });
-
-    const result = await res.json();
-    alert(result.message);
-
-    if (res.ok) {
-      setForm({ name: "", inchargeName: "", inchargeEmail: "", inchargeERP: "" });
-      fetchBuildings();
-    }
-  };
+    fetchBuildings();
+  }
+};
 
   return (
     <div>
@@ -56,6 +65,7 @@ const AddBuilding = () => {
         </div>
 
         <div className="form-row">
+
           <div className="form-group">
             <label>Incharge Name *</label>
             <input
@@ -74,6 +84,17 @@ const AddBuilding = () => {
               onChange={(e) => setForm({ ...form, inchargeERP: e.target.value })}
             />
           </div>
+
+          <div className="form-group">
+            <label>Phone Number *</label>
+            <input
+              required
+              type="text"
+              value={form.inchargePhone}
+              onChange={(e) => setForm({ ...form, inchargePhone: e.target.value })}
+            />
+          </div>
+
         </div>
 
         <div className="form-group">
@@ -91,6 +112,7 @@ const AddBuilding = () => {
 
       <br />
       <h3>Existing Buildings</h3>
+
       {buildings.map((b) => (
         <div key={b.BUILDING_ID} className="data-item">
           <b>{b.BUILDING_NAME}</b> — ID: {b.BUILDING_ID}
