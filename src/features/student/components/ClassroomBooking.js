@@ -106,7 +106,7 @@ const ClassroomBooking = () => {
   if (step === 1) {
     return (
       <div>
-        <h2>Add Booking (Building Incharge)</h2>
+        <h2>Add Booking</h2>
 
         <div className="form-group">
           <label>Slot</label>
