@@ -13,8 +13,9 @@ const ClassroomBooking = () => {
     purpose: ""
   });
 
-  // 🔥 BI ERP from login
-  const BI_ERP = Number(localStorage.getItem("erp")) || 0;
+  // 🔥 FIXED ERP FOR STUDENT (AND BI)
+  const savedUser = JSON.parse(localStorage.getItem("user"));
+  const USER_ERP = savedUser?.erp || savedUser?.ERP || 0;
 
   // Time slot conversion to match backend
   const slotMap = {
@@ -47,7 +48,7 @@ const ClassroomBooking = () => {
     try {
       const response = await fetch(
         `http://localhost:5000/api/booking/available-rooms?date=${form.date}&startTime=${start}&endTime=${end}&buildingId=${form.buildingId}&roomType=${"Classroom".toUpperCase()}`
- );
+      );
 
       const result = await response.json();
 
@@ -77,7 +78,7 @@ const ClassroomBooking = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            erp: BI_ERP,
+            erp: USER_ERP,   // FIXED ✔
             roomId: Number(form.roomId),
             date: form.date,
             startTime: start,
@@ -91,6 +92,7 @@ const ClassroomBooking = () => {
 
       if (result.success) {
         alert("Booking Successfully Created!");
+        setStep(1); // Reset
       } else {
         alert(result.error || "Failed to create booking");
       }
@@ -102,11 +104,11 @@ const ClassroomBooking = () => {
 
   // ------------------- UI -------------------
 
-   // STEP 1
+  // STEP 1
   if (step === 1) {
     return (
       <div>
-        <h2>Add Booking (Building Incharge)</h2>
+        <h2>Add Booking</h2>
 
         <div className="form-group">
           <label>Slot</label>
@@ -153,7 +155,7 @@ const ClassroomBooking = () => {
     );
   }
 
-  // STEP 2: SMALL ROOM CARD GRID (3 in a row)
+  // STEP 2: ROOM GRID
   if (step === 2) {
     return (
       <div>
@@ -203,7 +205,7 @@ const ClassroomBooking = () => {
     );
   }
 
-  // STEP 3: POPUP BOX (Like Student Version)
+  // STEP 3: CONFIRM POPUP
   if (step === 3) {
     const selectedRoom = availableRooms.find(
       (r) => r.ROOM_ID === form.roomId
@@ -240,7 +242,9 @@ const ClassroomBooking = () => {
           <p><b>Building:</b> {selectedRoom?.BUILDING_NAME}</p>
           <p><b>Date:</b> {form.date}</p>
           <p><b>Time:</b> {form.slot}</p>
-          <p><b>ERP:</b> {BI_ERP}</p>
+
+          {/* FIXED ERP DISPLAY */}
+          <p><b>ERP:</b> {USER_ERP}</p>
 
           <textarea
             placeholder="Describe the purpose..."

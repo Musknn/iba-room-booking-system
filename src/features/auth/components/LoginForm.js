@@ -110,36 +110,73 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
       } else {
         // LOGIN LOGIC - Always use backend API
         // LOGIN LOGIC - Always use backend API
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          userType: userType
-        })
-      });
+      // =======================
+// LOGIN LOGIC (FIXED)
+// =======================
+const response = await fetch('http://localhost:5000/api/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    email: formData.email,
+    password: formData.password,
+    userType: userType
+  })
+});
 
-      const result = await response.json();
+const result = await response.json();
+console.log("LOGIN RESPONSE:", result);
 
-      if (response.ok && result.success) {
-        // Successful login - pass user data to parent
-        console.log('Login successful, user data:', result.user); // Debug log
-        // DO NOT change backend role formatting
-const role = result.role;        // "ProgramOffice" or "BuildingIncharge"
-const type = result.userType;    // "admin" or "student"
+if (response.ok && result.success) {
 
-if (onLogin) {
-  onLogin(type, role, result.user);
+  const role = result.role;          // ProgramOffice / BuildingIncharge
+  const type = result.userType;      // admin / student
+  const backendUser = result.user;   // returned user object
+
+  // =============================
+  // STORE USER PROPERLY (THE FIX)
+  // =============================
+  let userToStore = null;
+
+  if (role === "BuildingIncharge") {
+    userToStore = {
+      Incharge_ID: backendUser.INCHARGE_ID,
+      name: backendUser.NAME,
+      email: backendUser.EMAIL,
+      role: "BI"
+    };
+  }
+
+  else if (role === "ProgramOffice") {
+    userToStore = {
+      ProgramOffice_ID: backendUser.PROGRAM_OFFICE_ID,
+      name: backendUser.NAME,
+      email: backendUser.EMAIL,
+      role: "PO"
+    };
+  }
+
+  else {
+    // student user
+    userToStore = backendUser;
+  }
+
+  // SAVE TO LOCAL STORAGE
+  localStorage.setItem("user", JSON.stringify(userToStore));
+  localStorage.setItem("role", role);
+
+  console.log("SAVED USER =", userToStore);
+
+  // call parent
+  if (onLogin) {
+    onLogin(type, role, backendUser);
+  }
+
+} else {
+  alert(`❌ ${result.error || 'Login failed'}`);
 }
 
-localStorage.setItem("role", role);
-
-      } else {
-        alert(`❌ ${result.error || 'Login failed'}`);
-      }
       }
     } catch (error) {
       console.error('Authentication error:', error);

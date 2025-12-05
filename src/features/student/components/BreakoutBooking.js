@@ -13,8 +13,9 @@ const BreakoutBooking = () => {
     purpose: ""
   });
 
-  // 🔥 BI ERP from login
-  const BI_ERP = Number(localStorage.getItem("erp")) || 0;
+  // 🔥 FIXED: Correct ERP extraction for STUDENT (and BI)
+  const savedUser = JSON.parse(localStorage.getItem("user"));
+  const USER_ERP = savedUser?.erp || savedUser?.ERP || 0;
 
   // Time slot conversion
   const slotMap = {
@@ -34,7 +35,7 @@ const BreakoutBooking = () => {
       .catch((err) => console.log("Buildings Error:", err));
   }, []);
 
-  // ------------------- SEARCH ONLY BREAKOUT ROOMS -------------------
+  // ------------------- SEARCH BREAKOUT ROOMS -------------------
   const handleSearchRooms = async () => {
     if (!form.slot || !form.date || !form.buildingId) {
       alert("Please fill all fields");
@@ -77,7 +78,7 @@ const BreakoutBooking = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            erp: BI_ERP,
+            erp: USER_ERP,        // FIXED ✔
             roomId: Number(form.roomId),
             date: form.date,
             startTime: start,
@@ -91,6 +92,7 @@ const BreakoutBooking = () => {
 
       if (result.success) {
         alert("Booking Successfully Created!");
+        setStep(1); // reset
       } else {
         alert(result.error || "Failed to create booking");
       }
@@ -240,7 +242,9 @@ const BreakoutBooking = () => {
           <p><b>Building:</b> {selectedRoom?.BUILDING_NAME}</p>
           <p><b>Date:</b> {form.date}</p>
           <p><b>Slot:</b> {form.slot}</p>
-          <p><b>ERP:</b> {BI_ERP}</p>
+
+          {/* FIXED ERP DISPLAY */}
+          <p><b>ERP:</b> {USER_ERP}</p>
 
           <textarea
             placeholder="Describe the purpose..."

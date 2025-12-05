@@ -3,6 +3,7 @@ const cors = require('cors');
 const buildingRoutes = require('./routes/buildings');
 const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/booking');  // Add this line
+const reservationRoutes = require('./routes/reservation');
 
 
 // Add this line
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/buildings', buildingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/booking', bookingRoutes);  // Add this line
+app.use('/api/reservation', reservationRoutes);
 
 
 
