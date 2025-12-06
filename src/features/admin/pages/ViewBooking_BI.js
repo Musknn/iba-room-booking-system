@@ -137,7 +137,7 @@ const ViewBooking = () => {
               </div>
 
               <div className="card-body">
-                <p><strong>Student:</strong> {b.STUDENT_NAME}</p>
+              
                 <p><strong>Student ERP:</strong> {b.ERP}</p>
                 <p><strong>Booking ID:</strong> {b.BOOKING_ID}</p>
                 <p><strong>Date:</strong> {formatDate(b.BOOKING_DATE)}</p>
