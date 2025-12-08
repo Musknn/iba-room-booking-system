@@ -1,58 +1,55 @@
-// src/routes/auth.js
-
-const express = require('express');
+//Necessary imports to create routes.
+const express = require('express'); 
 const router = express.Router();
 const oracledb = require('oracledb');
 const { getConnection } = require('../config/database');
 
-// ------------------------------
-// Email Domain Validation
-// ------------------------------
+//TO BE REMOVED
+//-----------------------------------------------------------------------------------------------------------------------------
+//Email Validation to ensure only IBA Students/Admin can login (I think this is redundant as we already check in the database)
 const isValidEmailDomain = (email) => {
-  const domain = email.split('@')[1];
-  return domain === "iba.edu.pk" || domain === "khi.iba.edu.pk";
+  const domain = email.split('@')[1];       // ["abc" , "iba.edu.pk"]
+  return domain === "iba.edu.pk" || domain === "khi.iba.edu.pk";  
 };
 
-// ------------------------------
-// FORMAT ROLE FOR FRONTEND
-// ------------------------------
+//COULD BE MADE PROCEDURE IN THE DATABASE
+//To avoid Upper/lower case inconsistencies
+// we make sure that the info to/from frontend is always sent converted to a format that is expected by our database.
 const formatRole = (role) => {
   if (!role) return null;
-
   const r = role.toLowerCase();
-
   if (r === "programoffice") return "ProgramOffice";
   if (r === "buildingincharge") return "BuildingIncharge";
   if (r === "student") return "Student";
-
   return role;
 };
 
-// ------------------------------
-// LOGIN ROUTE (Admin + Student)
-// ------------------------------
+// "/login" is url endpoint (the page where you will be sent to for login)
+// router.post defines a POST API endpoint 
+//(req, res) => "req" that is sent from the frontend and "res" that we send back to the frontend
 router.post('/login', async (req, res) => {
   let connection;
-
   try {
     const { email, password, userType } = req.body;
 
+    //If the user left any of these fields empty, throw an error.
     if (!email || !password || !userType) {
       return res.status(400).json({ success: false, error: "Email, password & userType are required." });
     }
 
+    //waits for the database connection to establish
     connection = await getConnection();
-    console.log("\n=== LOGIN ATTEMPT ===");
+    console.log(" LOGIN ATTEMPT ");
     console.log({ email, userType });
 
-    // ====================================================
-    // ADMIN LOGIN (Program Office + BI)
-    // ====================================================
+    //ADMIN LOGIN
     if (userType === "admin") {
       const result = await connection.execute(
+        //We create an anonymous block that calls the procedure from database called AdminLogin
+        //":variable_name" is a bind variable 
         `BEGIN
             AdminLogin(
-              :identifier,
+              :identifier, 
               :password,
               :success,
               :role,
@@ -62,9 +59,12 @@ router.post('/login', async (req, res) => {
             );
         END;`,
         {
+          //BIND_OUT = output from db, BIND_IN = input to db 
+          //Input
           identifier: email,
           password,
-          success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+          //Output
+          success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }, 
           role: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 50 },
           erp: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           name: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 200 },
@@ -74,33 +74,40 @@ router.post('/login', async (req, res) => {
 
       console.log("ADMIN LOGIN RESULT:", result.outBinds);
 
+      //result.outBinds is the variable returned/output from the stored procedure
+      //If the login was successful -> save the role, erp, and name
       if (result.outBinds.success === 1) {
         const correctedRole = formatRole(result.outBinds.role);
         const erp = result.outBinds.erp;
         const name = result.outBinds.name;
 
+        //TO BE MODIFIED IN THE DB AND REMOVED FROM HERE
+        //We create a userobj which is initially null and we assign it based on if the admin is BUILDING INCHARGE or PROGRAM
         let userObj = null;
 
-        // ---------- Building Incharge ----------
+        // ----------If Role(correctedRole) -> Building Incharge ----------
         if (correctedRole === "BuildingIncharge") {
+          //We save the user related information in the object that will be shown on the frontend.
           userObj = {
-            INCHARGE_ID: erp,   // IMPORTANT: used in frontend BI history
+            INCHARGE_ID: erp,  
             NAME: name,
             EMAIL: email,
             ROLE: correctedRole
           };
         }
 
-        // ---------- Program Office ----------
+        // ----------If Role(correctedRole) -> Program Office ----------
         else if (correctedRole === "ProgramOffice") {
+          //We save the user related information in the object that will be shown on the frontend.
           userObj = {
-            PROGRAM_OFFICE_ID: erp,  // IMPORTANT: used in PO functions
+            PROGRAM_OFFICE_ID: erp,  
             NAME: name,
             EMAIL: email,
             ROLE: correctedRole
           };
         }
-
+        
+        //Gives out the response
         return res.json({
           success: true,
           userType: "admin",
@@ -110,17 +117,17 @@ router.post('/login', async (req, res) => {
         });
       }
 
+      //If success = false -> Throw error.
       return res.status(401).json({
         success: false,
         error: result.outBinds.message || "Invalid admin credentials"
       });
     }
 
-    // ====================================================
     // STUDENT LOGIN
-    // ====================================================
     if (userType === "student") {
       const studentResult = await connection.execute(
+        // Called STUDENTLOGIN inside an anonymous PL/SQL to check studentlogin
         `BEGIN
             StudentLogin(
               :identifier,
@@ -134,8 +141,10 @@ router.post('/login', async (req, res) => {
             );
         END;`,
         {
+          //Input
           identifier: email,
           password,
+          //Output
           success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           erp: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           name: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 100 },
@@ -147,6 +156,7 @@ router.post('/login', async (req, res) => {
 
       console.log("STUDENT RESULT:", studentResult.outBinds);
 
+      //if the result is successful - send the response.
       if (studentResult.outBinds.success === 1) {
         return res.json({
           success: true,
@@ -163,14 +173,18 @@ router.post('/login', async (req, res) => {
         });
       }
 
-      // Check if student exists
+      //TO BE REMOVED
+      // Check if student exists - redundant (we have this as a procedure in database)
       const userCheck = await connection.execute(
         `SELECT COUNT(*) AS CNT FROM User_Table WHERE email = :email AND role = 'Student'`,
         { email }
       );
 
+      //it is checking if student exists or not so that it can decide what error to throw
       const exists = userCheck.rows[0].CNT === 1;
 
+      //if success==false and exists = 0 -> it means that the student does not exist in the database
+      //if success==false and exists = 1 -> it means that the student does exist but the credentials are incorrect due to which login failed.
       return res.status(401).json({
         success: false,
         error: studentResult.outBinds.message || (exists ? "Invalid password" : "Student not found")
@@ -178,7 +192,7 @@ router.post('/login', async (req, res) => {
     }
 
   } catch (err) {
-    console.error("❌ Login error:", err);
+    console.error("Login error:", err);
     return res.status(500).json({ success: false, error: err.message });
   } finally {
     if (connection) await connection.close().catch(() => {});

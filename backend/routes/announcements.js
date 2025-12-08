@@ -1,3 +1,4 @@
+//necessary imports
 const express = require('express');
 const router = express.Router();
 const oracledb = require('oracledb');
@@ -51,15 +52,15 @@ function formatAnnouncement(row) {
   };
 }
 
-/* ============================================================
-   1) GET ALL ANNOUNCEMENTS
-============================================================ */
+//All announcements for the students
 router.get('/all', async (req, res) => {
   let connection;
   try {
     connection = await getConnection();
 
     const result = await connection.execute(
+      //calls the stored procedure from our database "ShowAllAnnouncements"
+      //no input -> outputs a cursor
       `BEGIN ShowAllAnnouncements(:cursor); END;`,
       { cursor: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR } }
     );

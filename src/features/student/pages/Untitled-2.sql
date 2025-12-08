@@ -2179,6 +2179,7 @@ COMMIT;
 
 select * from user_table;
 
+
 -- 2.1 All users with roles
 SELECT ERP, name, email, role, phone_number, LENGTH(user_password) as password_length
 FROM User_Table

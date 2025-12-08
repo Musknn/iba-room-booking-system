@@ -1,8 +1,16 @@
+//necessary imports
 const express = require('express');
 const oracledb = require('oracledb');
 const { getConnection } = require('../config/database');
 const router = express.Router();
 
+
+//there are alot of issues with this backend file
+//it doesnt look like it is using any procedure from the database
+
+//WE SHOULD REMOVE THIS AS WE NEED TO SHOW OUT DATABASE IS WORKING FINE AND this is dummy data which is not needed
+//all dummy, debugging, and fallback should be entirely removed for db project as it means we are cheating or lying
+//---------------------------------------------------------------------------------------------------------------------
 // ============================================
 // SIMPLE TEST ENDPOINT (without database)
 // ============================================
@@ -49,31 +57,30 @@ router.get('/dummy', (req, res) => {
     message: 'Dummy data loaded successfully'
   });
 });
+//---------------------------------------------------------------------------------------------------------------------
 
-// ============================================
-// 1. VIEW ALL ROOMS (with error handling)
-// ============================================
-// ============================================
-// 1. VIEW ALL ROOMS (with proper data extraction)
-// ============================================
+
+//View all rooms
+//GET API endpoint
+
 router.get('/', async (req, res) => {
   let connection;
   try {
-    console.log('🏢 GET /api/rooms - Attempting to fetch rooms...');
     
     // Try to get database connection
     try {
       connection = await getConnection();
-      console.log('✅ Database connection established');
+      console.log('Database connection established');
     } catch (dbError) {
-      console.log('⚠️ Database connection failed, using dummy data');
+      console.log('Database connection failed, using dummy data');
+      //---------------------------------------------------------------------------------------
+      //remove this too
       // Fallback to dummy data
       const dummyRooms = [
         { room_id: 1, room_name: 'MAC-1', room_type: 'CLASSROOM', building_id: 1, building_name: 'Adamjee' },
         { room_id: 2, room_name: 'MAC-2', room_type: 'CLASSROOM', building_id: 1, building_name: 'Adamjee' },
         { room_id: 3, room_name: 'BREAKOUT-1', room_type: 'BREAKOUT', building_id: 1, building_name: 'Adamjee' }
-      ];
-      
+      ];      
       return res.json({
         success: true,
         data: dummyRooms,
@@ -81,8 +88,12 @@ router.get('/', async (req, res) => {
         message: 'Using demo data (database not available)',
         demo: true
       });
+      //---------------------------------------------------------------------------------------------------
+
     }
     
+    //----------------------------------------------------------------------------------------------------------
+    //this debug query should be removed too
     // DEBUG: First try a simple SQL query to see what's in the table
     console.log('🔍 Testing simple SQL query...');
     const testResult = await connection.execute(
@@ -93,9 +104,10 @@ router.get('/', async (req, res) => {
       rows: testResult.rows,
       metadata: testResult.metaData
     });
+    //-----------------------------------------------------------------------------------------
     
-    // Try to execute the procedure
     const result = await connection.execute(
+      //In the anonymous block -> we call the stored procedure from the database "ViewAllRooms"
       `BEGIN
          ViewAllRooms(:cursor);
        END;`,
@@ -107,10 +119,11 @@ router.get('/', async (req, res) => {
     const cursor = result.outBinds.cursor;
     
     if (!cursor) {
-      console.error('❌ Cursor is null!');
+      console.error('Cursor is null!');
       throw new Error('Database cursor is null');
     }
     
+    //very complicated -> needs to be refined.
     // Try different ways to get rows
     let rows = [];
     try {
@@ -192,6 +205,7 @@ router.get('/', async (req, res) => {
     console.log(`✅ Transformed ${rooms.length} rooms`);
     console.log('🔍 First transformed room:', rooms[0]);
     
+    //again dummy data -> should be  removed
     // If all rooms are empty, use dummy data
     if (rooms.length > 0 && (!rooms[0].room_name || rooms[0].room_name.includes('Room '))) {
       console.log('⚠️ All rooms have empty names, using dummy data');
