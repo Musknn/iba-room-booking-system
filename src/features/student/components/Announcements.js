@@ -151,11 +151,6 @@ const StudentAnnouncements = () => {
               <div className="announcement-content">
                 <p>{a.description}</p>
               </div>
-
-              <div className="announcement-footer">
-                <span>ID: {a.id}</span>
-              </div>
-
             </div>
           ))
         )}

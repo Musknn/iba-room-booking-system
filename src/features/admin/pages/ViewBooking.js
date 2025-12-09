@@ -40,7 +40,7 @@ const ViewBooking = () => {
       const response = await fetch("http://localhost:5000/api/reservation/reject", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ booking_id: bookingId, role: "PO" }),
+        body: JSON.stringify({ booking_id: bookingId, role: "ProgramOffice" }),
       });
 
       const result = await response.json();

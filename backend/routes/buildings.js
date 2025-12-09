@@ -1,35 +1,58 @@
-// routes/buildings.js
 const express = require('express');
+const router = express.Router();
 const oracledb = require('oracledb');
 const { getConnection } = require('../config/database');
-const router = express.Router();
 
-//GET API endpoint -> used to get buildings
-// "/" -> url
+// GET all buildings - FIXED FOR CLASSROOMBOOKING.JS
 router.get('/', async (req, res) => {
   let connection;
   try {
     connection = await getConnection();
-
-    //runs a query to find all the buildings from the building table and order them by the building name.
-    //probably could be made a procedure
-    const result = await connection.execute(`
-      SELECT building_id, building_name 
-      FROM Building 
-      ORDER BY building_name
-    `);
-
-    res.json(result.rows); //result.rows = rows of the buildings
-    //res.json - > sends this response to the frontend
-
-  } catch (error) {
-    console.error('Error fetching buildings:', error);
-    res.status(500).json({ error: 'Failed to fetch buildings' });
+    
+    // OPTION 1: Use your procedure (preferred)
+    const result = await connection.execute(
+      `BEGIN get_buildings(:cursor); END;`,
+      { 
+        cursor: { 
+          dir: oracledb.BIND_OUT, 
+          type: oracledb.CURSOR 
+        } 
+      }
+    );
+    
+    const rs = result.outBinds.cursor;
+    const rows = await rs.getRows();
+    await rs.close();
+    
+    // ClassroomBooking.js expects an ARRAY of objects with UPPERCASE properties
+    const buildings = rows.map(row => {
+      if (Array.isArray(row)) {
+        return {
+          BUILDING_ID: row[0],      // MUST BE UPPERCASE
+          BUILDING_NAME: row[1]     // MUST BE UPPERCASE
+        };
+      } 
+      // Fallback for object format
+      else if (row && typeof row === 'object') {
+        return {
+          BUILDING_ID: row.BUILDING_ID || row.building_id,
+          BUILDING_NAME: row.BUILDING_NAME || row.building_name
+        };
+      }
+      return null;
+    }).filter(Boolean);
+    
+    // CRITICAL: ClassroomBooking.js expects DIRECT ARRAY, not {success: true, data: [...]}
+    res.json(buildings);
+    
+  } catch (err) {
+    console.error('Error in GET /buildings:', err);
+    // Return empty array on error
+    res.json([]);
   } finally {
     if (connection) await connection.close();
   }
 });
-
 
 //Add building -> Can be donw by PO only.
 //POST API endpoint

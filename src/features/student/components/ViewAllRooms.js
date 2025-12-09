@@ -340,8 +340,6 @@ const ViewAllRooms = () => {
                 
                 <div className="room-card-details">
                   <p><strong>Building:</strong> {room.building_name}</p>
-                  <p><strong>Room ID:</strong> {room.room_id}</p>
-                  <p><strong>Building ID:</strong> {room.building_id}</p>
                 </div>
               </div>
             );

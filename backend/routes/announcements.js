@@ -75,7 +75,7 @@ router.get('/all', async (req, res) => {
     return res.json({ success: true, data: formatted });
 
   } catch (err) {
-    console.error("❌ Error in /all:", err);
+    console.error("Error in /all:", err);
     return res.status(500).json({ success: false, error: err.message });
   } finally {
     if (connection) await connection.close();
@@ -110,7 +110,7 @@ router.get('/building/:name', async (req, res) => {
     return res.json({ success: true, data: formatted });
 
   } catch (err) {
-    console.error("❌ Error in /building:", err);
+    console.error("Error in /building:", err);
     return res.status(500).json({ success: false, error: err.message });
   } finally {
     if (connection) await connection.close();
@@ -140,16 +140,11 @@ router.get('/incharge/:erp', async (req, res) => {
     const rows = await rs.getRows();
     await rs.close();
 
-    console.log("🔍 Raw rows from Oracle:", rows);
-
     const formatted = rows.map(formatAnnouncement);
-
-    console.log("✅ Formatted announcements:", formatted);
-
     return res.json({ success: true, data: formatted });
 
   } catch (err) {
-    console.error("❌ Error in /incharge:", err);
+    console.error("Error in /incharge:", err);
     return res.status(500).json({ success: false, error: err.message });
   } finally {
     if (connection) await connection.close();
@@ -197,7 +192,7 @@ router.post('/post', async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ Error posting announcement:", err);
+    console.error("Error posting announcement:", err);
     return res.status(500).json({ success: false, error: err.message });
   } finally {
     if (connection) await connection.close();
@@ -237,7 +232,7 @@ router.post('/delete', async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ Error deleting announcement:", err);
+    console.error("Error deleting announcement:", err);
     return res.status(500).json({ success: false, error: err.message });
   } finally {
     if (connection) await connection.close();

@@ -50,7 +50,7 @@ const ViewBooking = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           booking_id: bookingId, 
-          role: "BI"  // Role is "BI" for Building Incharge
+          role: "BuildingIncharge"  // Role is "BI" for Building Incharge
         }),
       });
 

@@ -133,42 +133,45 @@ router.get("/student/history", async (req, res) => {
 //Reject Booking 
 //url "/reject"
 //POST API endpoint
+// Using the unified RejectBooking procedure
 router.post("/reject", async (req, res) => {
   let connection;
+  const { booking_id, role, erp } = req.body;
 
-  //we extract the booking_id and the role from the request 
-  // the booking_id because we need to know which booking to cancel
-  // role to ensure that no student can reject a booking and to ensure that BI only rejects a breakout room booking
-  //similarly, po can only reject the classroom bookings.
-  const { booking_id, role } = req.body;
-
-  // if no booking_id given -> throw error
-  if (!booking_id) {
-    return res.json({ success: false, message: "Missing booking ID" });
+  if (!booking_id || !role) {
+    return res.json({ 
+      success: false, 
+      message: "Missing booking ID or role" 
+    });
   }
 
   try {
     connection = await getConnection();
 
     const result = await connection.execute(
-      //In the anonymous block -> we call out stored procedure "RejectBooking" from the database
-      //this takes the booking_id and role as input
       `BEGIN 
-          RejectBooking(:p_booking_id, :p_role, :p_message); 
+          RejectBooking(:p_booking_id, :p_role, :p_user_erp, :p_success, :p_message); 
        END;`,
       {
-        //input:
         p_booking_id: booking_id,
         p_role: role,
-        //output
+        p_user_erp: role === "BuildingIncharge" ? erp : null,
+        p_success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
         p_message: { dir: oracledb.BIND_OUT, type: oracledb.STRING }
       }
     );
     
-    res.json({ success: true, message: result.outBinds.p_message });
+    res.json({ 
+      success: result.outBinds.p_success === 1, 
+      message: result.outBinds.p_message 
+    });
+    
   } catch (err) {
     console.error("REJECT ERROR:", err);
-    res.json({ success: false, message: err.message });
+    res.json({ 
+      success: false, 
+      message: err.message 
+    });
   } finally {
     if (connection) await connection.close();
   }

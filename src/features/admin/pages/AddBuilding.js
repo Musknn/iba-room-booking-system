@@ -115,7 +115,7 @@ const AddBuilding = () => {
 
       {buildings.map((b) => (
         <div key={b.BUILDING_ID} className="data-item">
-          <b>{b.BUILDING_NAME}</b> — ID: {b.BUILDING_ID}
+          <b>{b.BUILDING_NAME}</b>
         </div>
       ))}
     </div>
