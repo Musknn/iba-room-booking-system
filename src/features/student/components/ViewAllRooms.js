@@ -10,198 +10,214 @@ const ViewAllRooms = () => {
   const [selectedBuildingName, setSelectedBuildingName] = useState('All Buildings');
   const [filteredRooms, setFilteredRooms] = useState([]);
 
-  // Load rooms and buildings from backend
   useEffect(() => {
-    fetchData();
+    loadInitialData();
   }, []);
 
-  // Apply filters when data changes - THIS TRIGGERS BUILDING FILTER
   useEffect(() => {
-    filterRooms();
+    applyFilters();
   }, [rooms, searchTerm, selectedBuilding]);
 
-  const fetchData = async () => {
+  // ----------------------------------------------
+  // LOAD INITIAL DATA - FIXED to handle API response properly
+  // ----------------------------------------------
+  const loadInitialData = async () => {
     try {
       setLoading(true);
-      console.log('Fetching data from backend...');
+
+      // Fetch buildings
+      const buildingsRes = await fetch("http://localhost:5000/api/buildings");
+      const buildingsData = await buildingsRes.json();
       
-      // Fetch rooms and buildings in parallel
-      const [roomsRes, buildingsRes] = await Promise.allSettled([
-        fetch('http://localhost:5000/api/rooms'),
-        fetch('http://localhost:5000/api/rooms/buildings')
-      ]);
-
-      // Handle rooms response
-      if (roomsRes.status === 'fulfilled' && roomsRes.value.ok) {
-        const roomsData = await roomsRes.value.json();
-        if (roomsData.success && Array.isArray(roomsData.data)) {
-          console.log(`Loaded ${roomsData.data.length} rooms`);
-          setRooms(roomsData.data);
-        } else {
-          console.warn('Using fallback rooms data');
-          setRooms(getFallbackRooms());
-        }
+      console.log("Buildings API response:", buildingsData);
+      
+      // The API returns {success: true, data: [...]}
+      // Check both possible response formats
+      if (buildingsData.success && Array.isArray(buildingsData.data)) {
+        setBuildings(buildingsData.data);
+        console.log("Buildings set successfully:", buildingsData.data.length, "buildings");
+      } else if (Array.isArray(buildingsData)) {
+        // Fallback: direct array response
+        setBuildings(buildingsData);
+        console.log("Buildings set (direct array):", buildingsData.length, "buildings");
       } else {
-        console.error('Failed to fetch rooms, using fallback');
-        setRooms(getFallbackRooms());
+        console.error("Unexpected buildings API format:", buildingsData);
+        setBuildings([]);
       }
 
-      // Handle buildings response
-      if (buildingsRes.status === 'fulfilled' && buildingsRes.value.ok) {
-        const buildingsData = await buildingsRes.value.json();
-        if (buildingsData.success && Array.isArray(buildingsData.data)) {
-          console.log(`Loaded ${buildingsData.data.length} buildings`);
-          setBuildings(buildingsData.data);
-        } else {
-          console.warn('Using fallback buildings data');
-          setBuildings(getFallbackBuildings());
-        }
+      // Fetch rooms
+      const roomsRes = await fetch("http://localhost:5000/api/rooms");
+      const roomsJson = await roomsRes.json();
+      
+      if (roomsJson.success && Array.isArray(roomsJson.data)) {
+        setRooms(roomsJson.data);
+        setFilteredRooms(roomsJson.data);
+        console.log("Rooms loaded:", roomsJson.data.length, "rooms");
       } else {
-        console.error('Failed to fetch buildings, using fallback');
-        setBuildings(getFallbackBuildings());
+        console.error("Unexpected rooms API format:", roomsJson);
+        setRooms([]);
+        setFilteredRooms([]);
       }
 
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      // Fallback to dummy data
-      setRooms(getFallbackRooms());
-      setBuildings(getFallbackBuildings());
+    } catch (err) {
+      console.error("Error loading data:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const getFallbackRooms = () => [
-    { room_id: 1, room_name: 'MAC-1', room_type: 'CLASSROOM', building_id: 1, building_name: 'Adamjee' },
-    { room_id: 2, room_name: 'MAC-2', room_type: 'CLASSROOM', building_id: 1, building_name: 'Adamjee' },
-    { room_id: 3, room_name: 'BREAKOUT-1', room_type: 'BREAKOUT', building_id: 1, building_name: 'Adamjee' },
-    { room_id: 4, room_name: 'AUDITORIUM', room_type: 'CLASSROOM', building_id: 1, building_name: 'Adamjee' },
-    { room_id: 5, room_name: 'MCC-9', room_type: 'CLASSROOM', building_id: 2, building_name: 'Aman CED' },
-    { room_id: 6, room_name: 'MC-BREAKOUT-1', room_type: 'BREAKOUT', building_id: 2, building_name: 'Aman CED' },
-    { room_id: 7, room_name: 'MTC-16', room_type: 'CLASSROOM', building_id: 3, building_name: 'Tabba' },
-    { room_id: 8, room_name: 'MT-BREAKOUT-1', room_type: 'BREAKOUT', building_id: 3, building_name: 'Tabba' }
-  ];
+  // ----------------------------------------------
+  // CALL PROCEDURE: getRoomsByBuilding (by NAME)
+  // ----------------------------------------------
+  const fetchRoomsByBuilding = async (buildingName) => {
+    try {
+      const encodedName = encodeURIComponent(buildingName);
+      const res = await fetch(`http://localhost:5000/api/rooms/building/${encodedName}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        return data.data.map(room => ({
+          room_id: room.ROOM_ID || room.room_id || room.ROOM_ID,
+          room_name: room.ROOM_NAME || room.room_name || room.ROOM_NAME,
+          room_type: room.ROOM_TYPE || room.room_type || room.ROOM_TYPE,
+          building_id: room.BUILDING_ID || room.building_id || room.BUILDING_ID,
+          building_name: room.BUILDING_NAME || room.building_name || room.BUILDING_NAME || buildingName
+        }));
+      }
+    } catch (err) {
+      console.error("Error fetching rooms by building:", err);
+    }
+    return [];
+  };
 
-  const getFallbackBuildings = () => [
-    { building_id: 1, building_name: 'Adamjee' },
-    { building_id: 2, building_name: 'Aman CED' },
-    { building_id: 3, building_name: 'Tabba' },
-    { building_id: 4, building_name: 'Executive Center' },
-    { building_id: 5, building_name: 'Sports Complex' }
-  ];
+  // ----------------------------------------------
+  // CALL PROCEDURE: searchByRoom
+  // ----------------------------------------------
+  const fetchSearchResults = async (query) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/rooms/search?query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        return data.data.map(room => ({
+          room_id: room.ROOM_ID || room.room_id || room.ROOM_ID,
+          room_name: room.ROOM_NAME || room.room_name || room.ROOM_NAME,
+          room_type: room.ROOM_TYPE || room.room_type || room.ROOM_TYPE,
+          building_id: room.BUILDING_ID || room.building_id || room.BUILDING_ID,
+          building_name: room.BUILDING_NAME || room.building_name || room.BUILDING_NAME || "Unknown Building"
+        }));
+      }
+    } catch (err) {
+      console.error("Error searching rooms:", err);
+    }
+    return [];
+  };
 
-  // ENHANCED BUILDING FILTER LOGIC
-  const filterRooms = () => {
-    let filtered = [...rooms];
-    
-    // ============================================
-    // ENHANCED BUILDING FILTER LOGIC
-    // ============================================
-    if (selectedBuilding !== 'all') {
-      // Convert selectedBuilding to number for comparison
-      const buildingId = parseInt(selectedBuilding);
-      
-      // Enhanced filtering: Check both building_id and building_name
-      filtered = filtered.filter(room => {
-        // Option 1: Match by building_id (direct comparison)
-        if (room.building_id === buildingId) {
-          return true;
-        }
-        
-        // Option 2: Match by building_name (find building by ID and compare names)
-        const selectedBldg = buildings.find(b => b.building_id === buildingId);
-        if (selectedBldg && room.building_name === selectedBldg.building_name) {
-          return true;
-        }
-        
-        // Option 3: Match by building_id string (as fallback)
-        if (room.building_id && room.building_id.toString() === selectedBuilding) {
-          return true;
-        }
-        
-        return false;
-      });
-      
-      // Update selected building name for display
+  // ----------------------------------------------
+  // APPLY FILTERS USING ALL 3 PROCEDURES
+  // ----------------------------------------------
+  const applyFilters = async () => {
+    let result = [];
+
+    // Case 1 → Search only (searchByRoom)
+    if (searchTerm.trim() !== '' && selectedBuilding === 'all') {
+      result = await fetchSearchResults(searchTerm);
+    }
+
+    // Case 2 → Building only (getRoomsByBuilding by NAME)
+    else if (selectedBuilding !== 'all' && searchTerm.trim() === '') {
+      // Find building name from building ID
       const selectedBldg = buildings.find(b => 
-        b.building_id === buildingId || 
-        b.building_id.toString() === selectedBuilding
+        (b.building_id == selectedBuilding) || 
+        (b.BUILDING_ID == selectedBuilding) ||
+        (b.id == selectedBuilding)
       );
-      setSelectedBuildingName(selectedBldg ? selectedBldg.building_name : 'Selected Building');
+      
+      const buildingName = selectedBldg?.building_name || selectedBldg?.BUILDING_NAME;
+      
+      if (buildingName) {
+        console.log("Fetching rooms for building:", buildingName);
+        result = await fetchRoomsByBuilding(buildingName);
+      } else if (selectedBldg) {
+        // Fallback: use building name property
+        const buildingNameAlt = selectedBldg.name || selectedBldg.NAME || selectedBldg.BUILDING;
+        if (buildingNameAlt) {
+          result = await fetchRoomsByBuilding(buildingNameAlt);
+        }
+      }
+    }
+
+    // Case 3 → BOTH building + search active
+    else if (selectedBuilding !== 'all' && searchTerm.trim() !== '') {
+      const searchResults = await fetchSearchResults(searchTerm);
+      const selectedBldg = buildings.find(b => 
+        (b.building_id == selectedBuilding) || 
+        (b.BUILDING_ID == selectedBuilding) ||
+        (b.id == selectedBuilding)
+      );
+      
+      const buildingName = selectedBldg?.building_name || selectedBldg?.BUILDING_NAME;
+      
+      if (buildingName) {
+        result = searchResults.filter(r => {
+          const roomBuildingName = r.building_name || r.BUILDING_NAME;
+          return roomBuildingName && 
+            roomBuildingName.toLowerCase() === buildingName.toLowerCase();
+        });
+      }
+    }
+
+    // Case 4 → No search, no building filter → return all rooms
+    else {
+      result = rooms;
+    }
+
+    setFilteredRooms(result);
+
+    // Update displayed building name
+    if (selectedBuilding !== "all") {
+      const selectedB = buildings.find(b => 
+        (b.building_id == selectedBuilding) || 
+        (b.BUILDING_ID == selectedBuilding) ||
+        (b.id == selectedBuilding)
+      );
+      
+      const bldgName = selectedB?.building_name || selectedB?.BUILDING_NAME || selectedB?.name || "Building";
+      setSelectedBuildingName(bldgName);
     } else {
-      setSelectedBuildingName('All Buildings');
+      setSelectedBuildingName("All Buildings");
     }
-    // ============================================
-    
-    // Filter by search term
-    if (searchTerm.trim() !== '') {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(room =>
-        (room.room_name && room.room_name.toLowerCase().includes(term)) ||
-        (room.building_name && room.building_name.toLowerCase().includes(term)) ||
-        (room.room_type && room.room_type.toLowerCase().includes(term))
-      );
-    }
-    
-    console.log(`Filtered to ${filtered.length} rooms for building: ${selectedBuildingName}`);
-    setFilteredRooms(filtered);
   };
 
-  // Handle building selection change
+  // ----------------------------------------------
   const handleBuildingChange = (e) => {
-    const value = e.target.value;
-    console.log(`Building selected: ${value}`);
-    setSelectedBuilding(value);
+    setSelectedBuilding(e.target.value);
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const formatRoomName = (roomName) => {
+    if (!roomName) return "Unnamed Room";
+    return roomName.replace(/_/g, ' ').replace(/-/g, ' - ');
+  };
+
+  const getAvailability = () => {
+    const statuses = ["available", "occupied"];
+    const rand = statuses[Math.floor(Math.random() * statuses.length)];
+    return { status: rand, text: rand.toUpperCase() };
   };
 
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedBuilding('all');
-    setSelectedBuildingName('All Buildings');
+    setSelectedBuildingName("All Buildings");
+    setFilteredRooms(rooms);
   };
 
-  // Generate random availability status
-  const getAvailability = () => {
-    const statuses = ['available', 'occupied'];
-    const randomIndex = Math.floor(Math.random() * statuses.length);
-    return {
-      status: statuses[randomIndex],
-      text: statuses[randomIndex].toUpperCase()
-    };
-  };
-
-  const formatRoomName = (roomName) => {
-    if (!roomName) return 'Unknown Room';
-    return roomName.replace(/_/g, ' ');
-  };
-
-  // Calculate building-specific stats
-  const getBuildingStats = () => {
-    if (selectedBuilding === 'all') return `All ${rooms.length} rooms`;
-    
-    const buildingRoomCount = rooms.filter(room => {
-      const buildingId = parseInt(selectedBuilding);
-      return room.building_id === buildingId || 
-             (room.building_name && buildings.find(b => b.building_id === buildingId)?.building_name === room.building_name);
-    }).length;
-    
-    return `${buildingRoomCount} rooms in ${selectedBuildingName}`;
-  };
-
+  // ----------------------------------------------
+  // UI - ONLY FILTER SECTION STRUCTURE CHANGED
+  // ----------------------------------------------
   if (loading) {
     return (
       <div className="view-all-rooms">
         <h2>University Rooms Directory</h2>
-        <div className="filters-section">
-          <div className="loading-placeholder">
-            <div className="loading-spinner"></div>
-            <p>Loading rooms data...</p>
-          </div>
-        </div>
+        <p>Loading rooms data...</p>
       </div>
     );
   }
@@ -210,195 +226,128 @@ const ViewAllRooms = () => {
     <div className="view-all-rooms">
       <h2>University Rooms Directory</h2>
 
-      {/* Filters Section - WITH WORKING BUILDING FILTER */}
-      <div className="filters-section">
-        <div className="filter-group">
-          <label htmlFor="buildingFilter">Filter by Building</label>
-          <select
-            id="buildingFilter"
-            value={selectedBuilding}
+      {/* FILTER SECTION - STRUCTURE ALIGNED WITH CLASSROOMBOOKING */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px',
+        marginBottom: '20px'
+      }}>
+        {/* BUILDING DROPDOWN - MATCHING CLASSROOMBOOKING STRUCTURE */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '5px'
+        }}>
+          <label style={{
+            fontWeight: 'bold',
+            fontSize: '14px'
+          }}>Filter by Building</label>
+          <select 
+            value={selectedBuilding} 
             onChange={handleBuildingChange}
-            className="filter-select"
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+              fontSize: '14px'
+            }}
           >
             <option value="all">All Buildings</option>
-            {buildings.map((building) => (
-              // FIXED: Ensure value is string and matches building_id
-              <option key={building.building_id} value={building.building_id.toString()}>
-                {building.building_name}
-              </option>
-            ))}
+            {Array.isArray(buildings) && buildings.length > 0 ? (
+              buildings.map((b, index) => {
+                // Extract building ID and name with multiple fallbacks
+                const buildingId = b.building_id || b.BUILDING_ID || b.id || index;
+                const buildingName = b.building_name || b.BUILDING_NAME || b.name || `Building ${buildingId}`;
+                
+                return (
+                  <option key={buildingId} value={buildingId}>
+                    {buildingName}
+                  </option>
+                );
+              })
+            ) : (
+              <option disabled>No buildings available</option>
+            )}
           </select>
         </div>
 
-        <div className="filter-group">
-          <label htmlFor="searchRoom">Search Classrooms</label>
+        {/* SEARCH INPUT - MATCHING STRUCTURE */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '5px'
+        }}>
+          <label style={{
+            fontWeight: 'bold',
+            fontSize: '14px'
+          }}>Search Rooms</label>
           <input
-            id="searchRoom"
             type="text"
-            placeholder="Search by room name or building..."
+            placeholder="Search by room name (e.g., 'MAC', 'AUDITORIUM')..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+              fontSize: '14px'
+            }}
           />
         </div>
 
-        <div className="filter-group">
-          <button 
-            type="button" 
-            onClick={handleClearFilters}
-            className="clear-btn"
-            style={{
-              background: '#f8f9fa',
-              border: '2px solid #550707',
-              color: '#550707',
-              padding: '12px 20px',
-              borderRadius: '6px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            Clear Filters
-          </button>
-        </div>
-
-        <div className="filter-stats">
-          <div style={{ fontWeight: '600', color: '#333' }}>
-            {filteredRooms.length} rooms shown
-          </div>
-          <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-            {getBuildingStats()}
-          </div>
-        </div>
+        {/* CLEAR BUTTON - MATCHING STYLE */}
+        <button 
+          onClick={handleClearFilters}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#f0f0f0',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          Clear Filters
+        </button>
       </div>
 
-      {/* Active Filter Indicator */}
-      {selectedBuilding !== 'all' && (
-        <div style={{
-          background: '#f0f7ff',
-          padding: '12px 20px',
-          borderRadius: '6px',
-          marginBottom: '20px',
-          fontSize: '14px',
-          color: '#333',
-          borderLeft: '3px solid #550707',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div>
-            <strong>Viewing:</strong> Rooms in <span style={{ color: '#550707', fontWeight: '600' }}>{selectedBuildingName}</span>
-            {searchTerm && (
-              <span> • Searching for: "<span style={{ color: '#550707', fontWeight: '600' }}>{searchTerm}</span>"</span>
-            )}
-          </div>
-          <button
-            onClick={handleClearFilters}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#550707',
-              fontSize: '13px',
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-          >
-            Clear filter
-          </button>
-        </div>
-      )}
+      {/* Results Info */}
+      <div className="results-info">
+        <p>
+          Showing {filteredRooms.length} rooms in <strong>{selectedBuildingName}</strong>
+          {searchTerm && ` matching "${searchTerm}"`}
+        </p>
+      </div>
 
-      {/* Rooms Grid - Shows filtered rooms based on building selection */}
-      {filteredRooms.length === 0 ? (
-        <div className="no-rooms-found">
-          <p>No rooms found matching your criteria.</p>
-          <div style={{ fontSize: '14px', color: '#666', marginTop: '10px', marginBottom: '15px' }}>
-            {selectedBuilding !== 'all' && `No rooms found in ${selectedBuildingName}`}
-            {searchTerm && ` • No results for "${searchTerm}"`}
+      {/* Rooms Grid - FIXED to handle property name variations */}
+      <div className="rooms-grid">
+        {filteredRooms.length === 0 ? (
+          <div className="no-results">
+            <p>No rooms found. Try changing your search criteria.</p>
           </div>
-          <button 
-            onClick={handleClearFilters}
-            style={{
-              background: '#550707',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: '600'
-            }}
-          >
-            Clear filters to see all rooms
-          </button>
-        </div>
-      ) : (
-        <>
-          <div className="rooms-grid">
-            {filteredRooms.map((room) => {
-              const availability = getAvailability();
-              
-              return (
-                <div key={room.room_id} className="room-card">
-                  <div>
-                    <h3>{formatRoomName(room.room_name)}</h3>
-                    <p><strong>Building:</strong> <span style={{ color: '#550707', fontWeight: '600' }}>{room.building_name || 'Unknown'}</span></p>
-                    <p><strong>Type:</strong> {room.room_type || 'Standard'}</p>
-                    <p><strong>Room ID:</strong> {room.room_id}</p>
-                    
-                    <div className={`availability ${availability.status}`}>
-                      {availability.text}
-                    </div>
-                  </div>
-                  
-                  <div style={{ 
-                    marginTop: '15px', 
-                    fontSize: '12px', 
-                    color: '#888',
-                    display: 'flex',
-                    justifyContent: 'space-between'
-                  }}>
-                    <span>Building: {room.building_name}</span>
-                    <span>ID: {room.room_id}</span>
-                  </div>
+        ) : (
+          filteredRooms.map((room) => {
+            return (
+              <div key={room.room_id} className="room-card">
+                <div className="room-card-header">
+                  <h3>{formatRoomName(room.room_name)}</h3>
+                  <span className="room-type">{room.room_type}</span>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Results Summary */}
-          <div style={{
-            marginTop: '30px',
-            padding: '15px',
-            background: '#f8f9fa',
-            borderRadius: '6px',
-            fontSize: '14px',
-            color: '#666'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <strong>Results:</strong> {filteredRooms.length} of {rooms.length} rooms shown
-                {selectedBuilding !== 'all' && (
-                  <span> • Filtered by: <span style={{ color: '#550707', fontWeight: '600' }}>{selectedBuildingName}</span></span>
-                )}
+                
+                <div className="room-card-details">
+                  <p><strong>Building:</strong> {room.building_name}</p>
+                  <p><strong>Room ID:</strong> {room.room_id}</p>
+                  <p><strong>Building ID:</strong> {room.building_id}</p>
+                </div>
               </div>
-              <button 
-                onClick={fetchData}
-                style={{
-                  background: 'none',
-                  border: '1px solid #550707',
-                  color: '#550707',
-                  padding: '8px 16px',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '13px'
-                }}
-              >
-                Refresh Data
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+            );
+          })
+        )}
+      </div>
     </div>
   );
 };

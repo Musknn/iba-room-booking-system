@@ -4,9 +4,9 @@ oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 //Enter the username, password, and port + service you are using
 //Make sure you run the DDL script on your device before running this.
 const dbConfig = {
-  user: 'c##room',  
-  password: 'Room123',  
-  connectString: 'localhost:1521/XE'  
+  user: 'abdullah',
+  password: '123',
+  connectString: 'localhost:1521/orclpdb'
 };
 
 //This code block tries to connect your Node.js application to Oracle database using oracledb
