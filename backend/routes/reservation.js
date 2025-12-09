@@ -129,6 +129,43 @@ router.get("/student/history", async (req, res) => {
   }
 });
 
+router.post("/cancel", async (req, res) => {
+  let connection;
+  const { booking_id, erp } = req.body;
+
+  if (!booking_id || !erp) {
+    return res.json({ 
+      success: false, 
+      message: "Missing booking ID or ERP" 
+    });
+  }
+
+  try {
+    connection = await getConnection();
+    const result = await connection.execute(
+      `BEGIN CancelBookingByStudent(:p_booking_id, :p_erp, :p_success, :p_message); END;`,
+      {
+        p_booking_id: booking_id,
+        p_erp: erp,
+        p_success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        p_message: { dir: oracledb.BIND_OUT, type: oracledb.STRING }
+      }
+    );
+    
+    res.json({ 
+      success: result.outBinds.p_success === 1, 
+      message: result.outBinds.p_message 
+    });
+  } catch (err) {
+    console.error("CANCEL ERROR:", err);
+    res.json({ 
+      success: false, 
+      message: err.message 
+    });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
 
 //Reject Booking 
 //url "/reject"

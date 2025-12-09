@@ -59,8 +59,7 @@ const BookingHistory = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             booking_id: bookingId,
-            erp: erp,
-            role: "STUDENT"
+            erp: erp  // Only booking_id and erp needed
           }),
         }
       );
