@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import Button from '../../../shared/components/ui/Button';
 import UserTypeSelector from './UserTypeSelector';
-import OTPScreen from './OTPScreen';
 import ForgotPassword from './ForgotPassword';
 
 const LoginForm = ({ onLogin, onUserTypeChange }) => {
   const [isNewUser, setIsNewUser] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [userType, setUserType] = useState('student');
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    identifier: '', // Can be email OR phone
+    identifier: '',
     password: '',
     fullName: '',
     confirmPassword: '',
-    studentId: ''  // ERP number for students
+    studentId: '',
+    phoneNumber: '',
+    program: '',
+    intakeYear: ''
   });
 
   const handleInputChange = (e) => {
@@ -32,21 +33,20 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
     }
   };
 
-  // Validation function for BOTH email and phone
-  const validateIdentifier = (identifier, isRegistration = false) => {
-    if (isRegistration && userType === 'student') {
-      // Student registration: only @khi.iba.edu.pk
-      return identifier.endsWith('@khi.iba.edu.pk');
-    }
-    
-    // For login: allow email, phone, or any identifier
-    // Check if it's an email (has @) - then validate domain
+  const validateIdentifier = (identifier) => {
     if (identifier.includes('@')) {
-      return identifier.endsWith('@iba.edu.pk') || identifier.endsWith('@khi.iba.edu.pk');
+      if (userType === 'student') {
+        return identifier.endsWith('@khi.iba.edu.pk');
+      } else if (userType === 'admin') {
+        return identifier.endsWith('@iba.edu.pk');
+      } else {
+        return false;
+      }
+    } else {
+      // Phone number
+      const phoneRegex = /^03\d{9}$/;
+      return phoneRegex.test(identifier);
     }
-    
-    // If it's a phone number (no @), accept it
-    return true;
   };
 
   const handleSubmit = async (e) => {
@@ -55,7 +55,7 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
 
     try {
       // Validate identifier
-      if (!validateIdentifier(formData.identifier, isNewUser)) {
+      if (!validateIdentifier(formData.identifier)) {
         if (isNewUser && userType === 'student') {
           alert('Student registration requires @khi.iba.edu.pk email address');
         } else {
@@ -66,9 +66,18 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
       }
 
       if (isNewUser) {
-        // REGISTRATION LOGIC
+        // REGISTRATION LOGIC (DIRECT - NO OTP)
         if (userType === 'admin') {
           alert('Admin users cannot register. Please use predefined admin accounts.');
+          setIsLoading(false);
+          return;
+        }
+
+        // Validate all required fields for registration
+        if (!formData.fullName || !formData.studentId || !formData.identifier || 
+            !formData.password || !formData.confirmPassword || !formData.phoneNumber ||
+            !formData.program || !formData.intakeYear) {
+          alert('All fields are required for registration');
           setIsLoading(false);
           return;
         }
@@ -87,7 +96,15 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
           return;
         }
 
-        // Call registration API
+        // Validate phone number
+        const phoneRegex = /^03\d{9}$/;
+        if (!phoneRegex.test(formData.phoneNumber)) {
+          alert('Please enter a valid Pakistani phone number (03XXXXXXXXX)');
+          setIsLoading(false);
+          return;
+        }
+
+        // Call registration API (direct registration - no OTP)
         const response = await fetch('http://localhost:5000/api/auth/register', {
           method: 'POST',
           headers: {
@@ -96,20 +113,32 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
           body: JSON.stringify({
             erp: parseInt(formData.studentId),
             name: formData.fullName,
-            identifier: formData.identifier,
+            email: formData.identifier,
             password: formData.password,
-            role: userType
+            phoneNumber: formData.phoneNumber,
+            program: formData.program,
+            intakeYear: parseInt(formData.intakeYear)
           })
         });
 
         const result = await response.json();
 
-        if (response.ok) {
-          setShowOtp(true);
-          console.log('Verification Code:', result.verificationCode); // For testing
-          alert('✅ Verification code sent! Check browser console for code (in production, this would be emailed).');
+        if (response.ok && result.success) {
+          alert('✅ Registration successful! You can now login.');
+          setIsNewUser(false); // Switch to login mode
+          // Clear form but keep identifier for login
+          setFormData({
+            identifier: formData.identifier,
+            password: '',
+            fullName: '',
+            confirmPassword: '',
+            studentId: '',
+            phoneNumber: '',
+            program: '',
+            intakeYear: ''
+          });
         } else {
-          alert(`❌ ${result.error || 'Registration failed'}`);
+          alert(`${result.error || 'Registration failed'}`);
         }
 
       } else {
@@ -125,7 +154,7 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            email: formData.identifier, // Send as "email" field (backend expects email parameter)
+            email: formData.identifier,
             password: formData.password,
             userType: userType
           })
@@ -133,16 +162,13 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
 
         const result = await response.json();
         console.log("LOGIN RESPONSE:", result);
-        console.log("Student ERP in backendUser:", result.user?.erp); // Debug line
 
         if (response.ok && result.success) {
-          const role = result.role;          // ProgramOffice / BuildingIncharge
-          const type = result.userType;      // admin / student
-          const backendUser = result.user;   // returned user object
+          const role = result.role;
+          const type = result.userType;
+          const backendUser = result.user;
 
-          // =============================
           // STORE USER PROPERLY
-          // =============================
           let userToStore = null;
 
           if (role === "BuildingIncharge") {
@@ -166,7 +192,7 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
             userToStore = backendUser;
           }
 
-          // ✅ FIXED: Store ERP in localStorage correctly
+          // Store ERP in localStorage correctly
           if (role === "BuildingIncharge") {
             localStorage.setItem("erp", backendUser.INCHARGE_ID);
           } 
@@ -174,11 +200,9 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
             localStorage.setItem("erp", backendUser.PROGRAM_OFFICE_ID);
           } 
           else {
-            // For students - use backendUser.erp instead of result.erp
             localStorage.setItem("erp", backendUser.erp);
           }
 
-          // Also store the full user object
           localStorage.setItem("user", JSON.stringify(userToStore));
           
           console.log("SAVED USER =", userToStore);
@@ -190,79 +214,14 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
           }
 
         } else {
-          alert(`❌ ${result.error || 'Login failed'}`);
+          alert(`${result.error || 'Login failed'}`);
         }
       }
     } catch (error) {
       console.error('Authentication error:', error);
-      alert('❌ Network error. Please check if backend is running.');
+      alert('Network error. Please check if backend is running.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleOtpVerify = async (otp) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.identifier,
-          verificationCode: otp
-        })
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        alert('Registration completed successfully! You can now login.');
-        setShowOtp(false);
-        setIsNewUser(false); // Switch to login mode
-        // Clear form but keep identifier for login
-        setFormData({
-          identifier: formData.identifier,
-          password: '',
-          fullName: '',
-          confirmPassword: '',
-          studentId: ''
-        });
-      } else {
-        alert(`❌ ${result.error || 'Invalid verification code'}`);
-      }
-    } catch (error) {
-      console.error('OTP verification error:', error);
-      alert('❌ Verification failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/resend-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.identifier
-        })
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        console.log('New Verification Code:', result.verificationCode); // For testing
-        alert('✅ New verification code sent! Check browser console for code.');
-      } else {
-        alert(`❌ ${result.error || 'Failed to resend code'}`);
-      }
-    } catch (error) {
-      console.error('Resend OTP error:', error);
-      alert('❌ Failed to resend code. Please try again.');
     }
   };
 
@@ -270,13 +229,37 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
     setShowForgotPassword(true);
   };
 
-  const handlePasswordReset = (identifier) => {
-    alert(`📧 Password reset would be sent to ${identifier}\n\n(Feature not implemented yet)`);
+  const handlePasswordReset = async (email, newPassword) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          newPassword: newPassword
+        })
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        alert('Password reset successful! You can now login with your new password.');
+        return true;
+      } else {
+        alert(`${result.error || 'Password reset failed'}`);
+        return false;
+      }
+    } catch (error) {
+      console.error('Password reset error:', error);
+      alert('Network error. Please try again.');
+      return false;
+    }
   };
 
   const handleBackToLogin = () => {
     setShowForgotPassword(false);
-    setShowOtp(false);
   };
 
   // If Forgot Password screen should be shown
@@ -285,18 +268,6 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
       <ForgotPassword 
         onResetPassword={handlePasswordReset}
         onBackToLogin={handleBackToLogin}
-      />
-    );
-  }
-
-  // If OTP screen should be shown
-  if (showOtp) {
-    return (
-      <OTPScreen 
-        email={formData.identifier}
-        onVerify={handleOtpVerify}
-        onResendOtp={handleResendOtp}
-        onBack={handleBackToLogin}
       />
     );
   }
@@ -327,19 +298,68 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
               />
             </div>
 
-            {/* Only show Student ID field for Student registration */}
+            {/* Student ID field for Student registration */}
             {userType === 'student' && (
-              <div className="form-group">
-                <input 
-                  type="number" 
-                  name="studentId"
-                  placeholder="Student ERP Number" 
-                  value={formData.studentId}
-                  onChange={handleInputChange}
-                  required 
-                  disabled={isLoading}
-                />
-              </div>
+              <>
+                <div className="form-group">
+                  <input 
+                    type="number" 
+                    name="studentId"
+                    placeholder="Student ERP Number" 
+                    value={formData.studentId}
+                    onChange={handleInputChange}
+                    required 
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <input 
+                    type="text" 
+                    name="phoneNumber"
+                    placeholder="Phone Number (03XXXXXXXXX)" 
+                    value={formData.phoneNumber}
+                    onChange={handleInputChange}
+                    required 
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <select 
+                    name="program"
+                    value={formData.program}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isLoading}
+                    className="form-select"
+                  >
+                    <option value="">Select Program</option>
+                    <option value="BBA">BBA</option>
+                    <option value="BSACF">BSACF</option>
+                    <option value="BSECO">BSECO</option>
+                    <option value="BSBA">BSBA</option>
+                    <option value="BSSS">BSSS</option>
+                    <option value="BSCS">BSCS</option>
+                    <option value="BSEM">BSEM</option>
+                    <option value="BSMT">BSMT</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <input 
+                    type="number" 
+                    name="intakeYear"
+                    placeholder="Intake Year (e.g., 2024)" 
+                    value={formData.intakeYear}
+                    onChange={handleInputChange}
+                    required 
+                    disabled={isLoading}
+                    min="2000"
+                    max="2030"
+                  />
+                </div>
+              </>
             )}
 
             {/* Admin cannot register */}
@@ -353,7 +373,7 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
                 color: '#856404',
                 marginBottom: '15px'
               }}>
-                ⚠️ Admin users cannot register. Use predefined admin accounts.
+                 Admin users cannot register. Use predefined admin accounts.
               </div>
             )}
           </>
@@ -380,7 +400,7 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
           <input 
             type="password" 
             name="password"
-            placeholder="Password" 
+            placeholder="Password (8-16 characters)" 
             value={formData.password}
             onChange={handleInputChange}
             required 
@@ -424,7 +444,7 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
           fullWidth 
           disabled={isLoading}
         >
-          {isLoading ? 'Processing...' : (isNewUser ? 'Register & Send OTP' : 'Login')}
+          {isLoading ? 'Processing...' : (isNewUser ? 'Register' : 'Login')}
         </Button>
       </form>
 
@@ -444,7 +464,10 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
                   password: '',
                   fullName: '',
                   confirmPassword: '',
-                  studentId: ''
+                  studentId: '',
+                  phoneNumber: '',
+                  program: '',
+                  intakeYear: ''
                 });
               }
             }}
@@ -466,8 +489,8 @@ const LoginForm = ({ onLogin, onUserTypeChange }) => {
         textAlign: 'center'
       }}>
         {isNewUser && userType === 'student' 
-          ? '📧 Student registration: @khi.iba.edu.pk only'
-          : '📧 Login: @iba.edu.pk or @khi.iba.edu.pk OR 📱 Phone number'
+          ? 'Student registration: @khi.iba.edu.pk only'
+          : 'Login: @iba.edu.pk or @khi.iba.edu.pk OR Phone number'
         }
       </div>
     </div>

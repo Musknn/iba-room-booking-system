@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import Button from '../../../shared/components/ui/Button';
 
 const ForgotPassword = ({ onResetPassword, onBackToLogin }) => {
-  const [step, setStep] = useState(1); // 1: Enter email, 2: Enter code, 3: New password
+  const [step, setStep] = useState(1); // 1: Enter email, 2: New password
   const [formData, setFormData] = useState({
     email: '',
-    resetCode: '',
     newPassword: '',
     confirmPassword: ''
   });
@@ -17,29 +16,22 @@ const ForgotPassword = ({ onResetPassword, onBackToLogin }) => {
     });
   };
 
-  const handleSendCode = (e) => {
+  const handleSendCode = async (e) => {
     e.preventDefault();
     if (formData.email) {
-      // Simulate sending reset code
-      onResetPassword(formData.email);
+      // Directly move to password reset step (no OTP verification)
       setStep(2);
     }
   };
 
-  const handleVerifyCode = (e) => {
-    e.preventDefault();
-    if (formData.resetCode) {
-      // In real app, verify the code with backend
-      setStep(3);
-    }
-  };
-
-  const handleResetPassword = (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
     if (formData.newPassword === formData.confirmPassword) {
-      // In real app, send new password to backend
-      alert('✅ Password reset successfully! You can now login with your new password.');
-      onBackToLogin();
+      // Call the password reset API
+      const success = await onResetPassword(formData.email, formData.newPassword);
+      if (success) {
+        onBackToLogin();
+      }
     } else {
       alert('❌ Passwords do not match!');
     }
@@ -51,7 +43,7 @@ const ForgotPassword = ({ onResetPassword, onBackToLogin }) => {
         return (
           <div>
             <h2>Reset Your Password</h2>
-            <p>Enter your IBA email address to receive a reset code</p>
+            <p>Enter your IBA email address to reset your password</p>
             
             <form onSubmit={handleSendCode}>
               <div className="form-group">
@@ -70,7 +62,7 @@ const ForgotPassword = ({ onResetPassword, onBackToLogin }) => {
                   Back to Login
                 </Button>
                 <Button type="submit" variant="primary">
-                  Send Reset Code
+                  Continue
                 </Button>
               </div>
             </form>
@@ -80,46 +72,15 @@ const ForgotPassword = ({ onResetPassword, onBackToLogin }) => {
       case 2:
         return (
           <div>
-            <h2>Enter Reset Code</h2>
-            <p>We sent a 6-digit code to {formData.email}</p>
-            
-            <form onSubmit={handleVerifyCode}>
-              <div className="form-group">
-                <input 
-                  type="text" 
-                  name="resetCode"
-                  placeholder="Enter 6-digit code" 
-                  value={formData.resetCode}
-                  onChange={handleInputChange}
-                  maxLength="6"
-                  required 
-                />
-              </div>
-              
-              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                <Button type="button" variant="text" onClick={() => setStep(1)}>
-                  Back
-                </Button>
-                <Button type="submit" variant="primary">
-                  Verify Code
-                </Button>
-              </div>
-            </form>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div>
             <h2>Create New Password</h2>
-            <p>Enter your new password</p>
+            <p>Enter your new password for {formData.email}</p>
             
             <form onSubmit={handleResetPassword}>
               <div className="form-group">
                 <input 
                   type="password" 
                   name="newPassword"
-                  placeholder="New Password" 
+                  placeholder="New Password (8-16 characters)" 
                   value={formData.newPassword}
                   onChange={handleInputChange}
                   required 
@@ -138,7 +99,7 @@ const ForgotPassword = ({ onResetPassword, onBackToLogin }) => {
               </div>
               
               <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                <Button type="button" variant="text" onClick={() => setStep(2)}>
+                <Button type="button" variant="text" onClick={() => setStep(1)}>
                   Back
                 </Button>
                 <Button type="submit" variant="primary">

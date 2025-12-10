@@ -1,20 +1,9 @@
-//Necessary imports to create routes.
-const express = require('express'); 
+const express = require('express');
 const router = express.Router();
 const oracledb = require('oracledb');
 const { getConnection } = require('../config/database');
 
-//TO BE REMOVED
-//-----------------------------------------------------------------------------------------------------------------------------
-//Email Validation to ensure only IBA Students/Admin can login (I think this is redundant as we already check in the database)
-const isValidEmailDomain = (email) => {
-  const domain = email.split('@')[1];       // ["abc" , "iba.edu.pk"]
-  return domain === "iba.edu.pk" || domain === "khi.iba.edu.pk";  
-};
-
-//COULD BE MADE PROCEDURE IN THE DATABASE
-//To avoid Upper/lower case inconsistencies
-// we make sure that the info to/from frontend is always sent converted to a format that is expected by our database.
+// Helper function to format role
 const formatRole = (role) => {
   if (!role) return null;
   const r = role.toLowerCase();
@@ -24,32 +13,25 @@ const formatRole = (role) => {
   return role;
 };
 
-// "/login" is url endpoint (the page where you will be sent to for login)
-// router.post defines a POST API endpoint 
-//(req, res) => "req" that is sent from the frontend and "res" that we send back to the frontend
+// LOGIN ENDPOINT
 router.post('/login', async (req, res) => {
   let connection;
   try {
     const { email, password, userType } = req.body;
 
-    //If the user left any of these fields empty, throw an error.
     if (!email || !password || !userType) {
       return res.status(400).json({ success: false, error: "Email, password & userType are required." });
     }
 
-    //waits for the database connection to establish
     connection = await getConnection();
-    console.log(" LOGIN ATTEMPT ");
-    console.log({ email, userType });
+    console.log("LOGIN ATTEMPT:", { email, userType });
 
-    //ADMIN LOGIN
+    // ADMIN LOGIN (ProgramOffice or BuildingIncharge)
     if (userType === "admin") {
       const result = await connection.execute(
-        //We create an anonymous block that calls the procedure from database called AdminLogin
-        //":variable_name" is a bind variable 
         `BEGIN
             AdminLogin(
-              :identifier, 
+              :identifier,
               :password,
               :success,
               :role,
@@ -59,12 +41,9 @@ router.post('/login', async (req, res) => {
             );
         END;`,
         {
-          //BIND_OUT = output from db, BIND_IN = input to db 
-          //Input
           identifier: email,
           password,
-          //Output
-          success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }, 
+          success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           role: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 50 },
           erp: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           name: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 200 },
@@ -74,40 +53,29 @@ router.post('/login', async (req, res) => {
 
       console.log("ADMIN LOGIN RESULT:", result.outBinds);
 
-      //result.outBinds is the variable returned/output from the stored procedure
-      //If the login was successful -> save the role, erp, and name
       if (result.outBinds.success === 1) {
         const correctedRole = formatRole(result.outBinds.role);
         const erp = result.outBinds.erp;
         const name = result.outBinds.name;
 
-        //TO BE MODIFIED IN THE DB AND REMOVED FROM HERE
-        //We create a userobj which is initially null and we assign it based on if the admin is BUILDING INCHARGE or PROGRAM
         let userObj = null;
 
-        // ----------If Role(correctedRole) -> Building Incharge ----------
         if (correctedRole === "BuildingIncharge") {
-          //We save the user related information in the object that will be shown on the frontend.
           userObj = {
-            INCHARGE_ID: erp,  
+            INCHARGE_ID: erp,
+            NAME: name,
+            EMAIL: email,
+            ROLE: correctedRole
+          };
+        } else if (correctedRole === "ProgramOffice") {
+          userObj = {
+            PROGRAM_OFFICE_ID: erp,
             NAME: name,
             EMAIL: email,
             ROLE: correctedRole
           };
         }
 
-        // ----------If Role(correctedRole) -> Program Office ----------
-        else if (correctedRole === "ProgramOffice") {
-          //We save the user related information in the object that will be shown on the frontend.
-          userObj = {
-            PROGRAM_OFFICE_ID: erp,  
-            NAME: name,
-            EMAIL: email,
-            ROLE: correctedRole
-          };
-        }
-        
-        //Gives out the response
         return res.json({
           success: true,
           userType: "admin",
@@ -117,7 +85,6 @@ router.post('/login', async (req, res) => {
         });
       }
 
-      //If success = false -> Throw error.
       return res.status(401).json({
         success: false,
         error: result.outBinds.message || "Invalid admin credentials"
@@ -127,7 +94,6 @@ router.post('/login', async (req, res) => {
     // STUDENT LOGIN
     if (userType === "student") {
       const studentResult = await connection.execute(
-        // Called STUDENTLOGIN inside an anonymous PL/SQL to check studentlogin
         `BEGIN
             StudentLogin(
               :identifier,
@@ -141,10 +107,8 @@ router.post('/login', async (req, res) => {
             );
         END;`,
         {
-          //Input
           identifier: email,
           password,
-          //Output
           success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           erp: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           name: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 100 },
@@ -156,7 +120,6 @@ router.post('/login', async (req, res) => {
 
       console.log("STUDENT RESULT:", studentResult.outBinds);
 
-      //if the result is successful - send the response.
       if (studentResult.outBinds.success === 1) {
         return res.json({
           success: true,
@@ -173,21 +136,9 @@ router.post('/login', async (req, res) => {
         });
       }
 
-      //TO BE REMOVED
-      // Check if student exists - redundant (we have this as a procedure in database)
-      const userCheck = await connection.execute(
-        `SELECT COUNT(*) AS CNT FROM User_Table WHERE email = :email AND role = 'Student'`,
-        { email }
-      );
-
-      //it is checking if student exists or not so that it can decide what error to throw
-      const exists = userCheck.rows[0].CNT === 1;
-
-      //if success==false and exists = 0 -> it means that the student does not exist in the database
-      //if success==false and exists = 1 -> it means that the student does exist but the credentials are incorrect due to which login failed.
       return res.status(401).json({
         success: false,
-        error: studentResult.outBinds.message || (exists ? "Invalid password" : "Student not found")
+        error: studentResult.outBinds.message || "Invalid credentials"
       });
     }
 
@@ -199,24 +150,164 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ------------------------------
-// ADDITIONAL AUTH ROUTES (Optional - you can add later)
-// ------------------------------
+// REGISTRATION ENDPOINT (DIRECT - NO OTP)
 router.post('/register', async (req, res) => {
-  res.json({ message: 'Register endpoint - to be implemented' });
+  let connection;
+  try {
+    const { erp, name, email, password, phoneNumber, program, intakeYear } = req.body;
+
+    if (!erp || !name || !email || !password || !phoneNumber || !program || !intakeYear) {
+      return res.status(400).json({ success: false, error: "All fields are required." });
+    }
+
+    connection = await getConnection();
+    console.log("REGISTER ATTEMPT:", { erp, name, email });
+
+    // Call RegisterStudent procedure (direct registration)
+    const result = await connection.execute(
+      `BEGIN
+          RegisterStudent(
+            :p_erp,
+            :p_name,
+            :p_email,
+            :p_password,
+            :p_phonenumber,
+            :p_program,
+            :p_intake_year,
+            :p_success,
+            :p_message
+          );
+      END;`,
+      {
+        p_erp: parseInt(erp),
+        p_name: name,
+        p_email: email,
+        p_password: password,
+        p_phonenumber: phoneNumber,
+        p_program: program,
+        p_intake_year: parseInt(intakeYear),
+        p_success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        p_message: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 500 }
+      }
+    );
+
+    console.log("REGISTRATION RESULT:", result.outBinds);
+
+    if (result.outBinds.p_success === 1) {
+      return res.json({
+        success: true,
+        message: result.outBinds.p_message || "Registration successful"
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: result.outBinds.p_message || "Registration failed"
+      });
+    }
+
+  } catch (err) {
+    console.error("Registration error:", err);
+    return res.status(500).json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close().catch(() => {});
+  }
 });
 
-router.post('/verify', async (req, res) => {
-  res.json({ message: 'Verify endpoint - to be implemented' });
+// PASSWORD RESET ENDPOINT (DIRECT - NO OTP)
+router.post('/reset-password', async (req, res) => {
+  let connection;
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({ success: false, error: "Email and new password are required." });
+    }
+
+    connection = await getConnection();
+    console.log("PASSWORD RESET ATTEMPT:", { email });
+
+    // Call ResetPasswordDirect procedure
+    const result = await connection.execute(
+      `BEGIN
+          ResetPasswordDirect(
+            :p_email,
+            :p_new_password,
+            :p_success,
+            :p_message
+          );
+      END;`,
+      {
+        p_email: email,
+        p_new_password: newPassword,
+        p_success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        p_message: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 500 }
+      }
+    );
+
+    console.log("PASSWORD RESET RESULT:", result.outBinds);
+
+    if (result.outBinds.p_success === 1) {
+      return res.json({
+        success: true,
+        message: result.outBinds.p_message || "Password reset successful"
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: result.outBinds.p_message || "Password reset failed"
+      });
+    }
+
+  } catch (err) {
+    console.error("Password reset error:", err);
+    return res.status(500).json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close().catch(() => {});
+  }
 });
 
-router.get('/check-user', async (req, res) => {
-  res.json({ message: 'Check user endpoint - to be implemented' });
+// CHECK USER EXISTS (for registration validation)
+router.post('/check-user', async (req, res) => {
+  let connection;
+  try {
+    const { email, phoneNumber } = req.body;
+
+    connection = await getConnection();
+
+    const result = await connection.execute(
+      `BEGIN
+          CheckUserExists(
+            :p_email,
+            :p_phonenumber,
+            :p_user_exists,
+            :p_message
+          );
+      END;`,
+      {
+        p_email: email,
+        p_phonenumber: phoneNumber,
+        p_user_exists: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        p_message: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 500 }
+      }
+    );
+
+    return res.json({
+      success: true,
+      userExists: result.outBinds.p_user_exists === 1,
+      message: result.outBinds.p_message
+    });
+
+  } catch (err) {
+    console.error("Check user error:", err);
+    return res.status(500).json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close().catch(() => {});
+  }
 });
 
 // Health check endpoint
 router.get('/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'Auth route working',
     timestamp: new Date().toISOString()
   });
