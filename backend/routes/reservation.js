@@ -173,7 +173,7 @@ router.post("/cancel", async (req, res) => {
 // Using the unified RejectBooking procedure
 router.post("/reject", async (req, res) => {
   let connection;
-  const { booking_id, role, erp } = req.body;
+  const { booking_id, role, incharge_erp } = req.body;
 
   if (!booking_id || !role) {
     return res.json({ 
@@ -192,7 +192,7 @@ router.post("/reject", async (req, res) => {
       {
         p_booking_id: booking_id,
         p_role: role,
-        p_user_erp: role === "BuildingIncharge" ? erp : null,
+        p_user_erp: role === "BuildingIncharge" ? Number(incharge_erp) : null,
         p_success: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
         p_message: { dir: oracledb.BIND_OUT, type: oracledb.STRING }
       }
