@@ -1,57 +1,97 @@
+// Import React and required hooks
 import React, { useState, useEffect } from "react";
 
+// Main component for booking Breakout rooms
 const BreakoutBooking = () => {
+
+  /* ================================
+     STATE MANAGEMENT
+     ================================ */
+
+  // Controls which step of the booking flow is active
+  // 1 = Search form
+  // 2 = Available rooms list
+  // 3 = Booking confirmation modal
   const [step, setStep] = useState(1);
+
+  // Stores list of buildings fetched from backend
   const [buildings, setBuildings] = useState([]);
+
+  // Stores list of available breakout rooms for selected criteria
   const [availableRooms, setAvailableRooms] = useState([]);
 
+  // Centralized form state for booking data
   const [form, setForm] = useState({
-    slot: "",
-    date: "",
-    buildingId: "",
-    roomId: "",
-    purpose: ""
+    slot: "",        // Selected time slot (e.g., "08:30-09:45")
+    date: "",        // Selected booking date
+    buildingId: "",  // Selected building ID
+    roomId: "",      // Selected room ID
+    purpose: ""      // Purpose of booking
   });
 
-  // 🔥 FIXED: Correct ERP extraction for STUDENT (and BI)
+  /* ================================
+     USER ERP EXTRACTION
+     ================================ */
+
+  // Retrieve logged-in user object from localStorage
   const savedUser = JSON.parse(localStorage.getItem("user"));
+
+  // Extract ERP safely (supports different casing from backend)
+  // Defaults to 0 if ERP is missing
   const USER_ERP = savedUser?.erp || savedUser?.ERP || 0;
 
-  // Time slot conversion
+  /* ================================
+     SLOT → TIME CONVERSION
+     ================================ */
+
+  // Maps UI-friendly slots to backend-compatible start/end times
   const slotMap = {
     "08:30-09:45": { start: "08:30", end: "09:45" },
     "10:00-11:15": { start: "10:00", end: "11:15" },
     "11:30-12:45": { start: "11:30", end: "12:45" },
-    "1:00-2:15": { start: "13:00", end: "14:15" },
-    "2:30-3:45": { start: "14:30", end: "15:45" },
-    "4:00-5:15": { start: "16:00", end: "17:15" },
-    "5:30-6:45": { start: "17:30", end: "18:45" }
+    "1:00-2:15":   { start: "13:00", end: "14:15" },
+    "2:30-3:45":   { start: "14:30", end: "15:45" },
+    "4:00-5:15":   { start: "16:00", end: "17:15" },
+    "5:30-6:45":   { start: "17:30", end: "18:45" }
   };
 
+  /* ================================
+     FETCH BUILDINGS ON LOAD
+     ================================ */
+
+  // Runs once when component mounts
   useEffect(() => {
     fetch("http://localhost:5000/api/buildings")
       .then((res) => res.json())
-      .then((data) => setBuildings(data))
+      .then((data) => setBuildings(data)) // Save buildings in state
       .catch((err) => console.log("Buildings Error:", err));
   }, []);
 
-  // ------------------- SEARCH BREAKOUT ROOMS -------------------
+  /* ================================
+     SEARCH AVAILABLE BREAKOUT ROOMS
+     ================================ */
+
   const handleSearchRooms = async () => {
+
+    // Validate required inputs before API call
     if (!form.slot || !form.date || !form.buildingId) {
       alert("Please fill all fields");
       return;
     }
 
+    // Convert selected slot into start/end times
     const slot = slotMap[form.slot];
     const { start, end } = slot;
 
     try {
+      // Fetch available breakout rooms from backend
       const response = await fetch(
         `http://localhost:5000/api/booking/available-rooms?date=${form.date}&startTime=${start}&endTime=${end}&buildingId=${form.buildingId}&roomType=${"Breakout".toUpperCase()}`
       );
 
       const result = await response.json();
 
+      // If rooms exist, move to Step 2
       if (result.success && result.data.length > 0) {
         setAvailableRooms(result.data);
         setStep(2);
@@ -64,35 +104,42 @@ const BreakoutBooking = () => {
     }
   };
 
-  // ------------------- CREATE BOOKING -------------------
+  /* ================================
+     CREATE BOOKING
+     ================================ */
+
   const handleAddBooking = async () => {
+
+    // Validate slot before submission
     const slot = slotMap[form.slot];
     if (!slot) return alert("Invalid slot");
 
     const { start, end } = slot;
 
     try {
+      // Send booking request to backend
       const response = await fetch(
         "http://localhost:5000/api/booking/create-booking",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            erp: USER_ERP,        // FIXED ✔
-            roomId: Number(form.roomId),
-            date: form.date,
-            startTime: start,
-            endTime: end,
-            purpose: form.purpose
+            erp: USER_ERP,                // Logged-in user's ERP
+            roomId: Number(form.roomId), // Selected room ID
+            date: form.date,             // Booking date
+            startTime: start,             // Slot start time
+            endTime: end,                 // Slot end time
+            purpose: form.purpose         // Purpose entered by user
           })
         }
       );
 
       const result = await response.json();
 
+      // Handle success/failure
       if (result.success) {
         alert("Booking Successfully Created!");
-        setStep(1); // reset
+        setStep(1); // Reset flow after booking
       } else {
         alert(result.error || "Failed to create booking");
       }
@@ -102,14 +149,17 @@ const BreakoutBooking = () => {
     }
   };
 
-  // ------------------- UI -------------------
+  /* ================================
+     UI RENDERING
+     ================================ */
 
-  // STEP 1
+  /* -------- STEP 1: SEARCH FORM -------- */
   if (step === 1) {
     return (
       <div>
         <h2>Add Booking (Breakout Rooms)</h2>
 
+        {/* Slot selection */}
         <div className="form-group">
           <label>Slot</label>
           <select
@@ -126,6 +176,7 @@ const BreakoutBooking = () => {
           </select>
         </div>
 
+        {/* Date selection */}
         <div className="form-group">
           <label>Date</label>
           <input
@@ -134,6 +185,7 @@ const BreakoutBooking = () => {
           />
         </div>
 
+        {/* Building selection */}
         <div className="form-group">
           <label>Building</label>
           <select
@@ -148,6 +200,7 @@ const BreakoutBooking = () => {
           </select>
         </div>
 
+        {/* Search button */}
         <button className="maroon-btn" onClick={handleSearchRooms}>
           Search Breakout Rooms
         </button>
@@ -155,7 +208,7 @@ const BreakoutBooking = () => {
     );
   }
 
-  // STEP 2
+  /* -------- STEP 2: AVAILABLE ROOMS -------- */
   if (step === 2) {
     return (
       <div>
@@ -165,6 +218,7 @@ const BreakoutBooking = () => {
 
         <h2>Available Breakout Rooms</h2>
 
+        {/* Grid layout for room cards */}
         <div
           style={{
             display: "grid",
@@ -188,6 +242,7 @@ const BreakoutBooking = () => {
               <p><b>Type:</b> {room.ROOM_TYPE}</p>
               <p><b>Building:</b> {room.BUILDING_NAME}</p>
 
+              {/* Proceed to confirmation */}
               <button
                 className="maroon-btn"
                 style={{ width: "100%", marginTop: "10px" }}
@@ -205,8 +260,10 @@ const BreakoutBooking = () => {
     );
   }
 
-  // STEP 3
+  /* -------- STEP 3: CONFIRMATION MODAL -------- */
   if (step === 3) {
+
+    // Find selected room details
     const selectedRoom = availableRooms.find(
       (r) => r.ROOM_ID === form.roomId
     );
@@ -243,9 +300,10 @@ const BreakoutBooking = () => {
           <p><b>Date:</b> {form.date}</p>
           <p><b>Slot:</b> {form.slot}</p>
 
-          {/* FIXED ERP DISPLAY */}
+          {/* Display ERP for verification */}
           <p><b>ERP:</b> {USER_ERP}</p>
 
+          {/* Purpose input */}
           <textarea
             placeholder="Describe the purpose..."
             style={{
@@ -261,6 +319,7 @@ const BreakoutBooking = () => {
             }
           ></textarea>
 
+          {/* Action buttons */}
           <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
             <button
               className="maroon-btn"
@@ -290,4 +349,5 @@ const BreakoutBooking = () => {
   }
 };
 
+// Export component
 export default BreakoutBooking;

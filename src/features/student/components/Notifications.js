@@ -1,27 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import './Notifications.css';
+import './Notifications.css'; // Import CSS for styling the notifications component
 
+// Notifications component - displays booking notifications for a student
 const Notifications = ({ studentERP }) => {
+  // State to store notifications
   const [notifications, setNotifications] = useState([]);
+  // Loading state for spinner while fetching data
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // 'all', 'approved', 'rejected'
+  // Filter state - shows all, approved only, or rejected only notifications
+  const [filter, setFilter] = useState('all');
 
+  // useEffect to load notifications when component mounts
   useEffect(() => {
     loadNotifications();
   }, []);
 
+  // ------------------- FETCH NOTIFICATIONS -------------------
   const loadNotifications = async () => {
-    setLoading(true);
+    setLoading(true); // Start loading
+
     try {
+      // Get ERP from props or fallback to localStorage
       const erp = studentERP || localStorage.getItem("erp");
-      
+
       if (!erp) {
-        console.error("No ERP found");
+        console.error("No ERP found"); // If no ERP, stop fetching
         setLoading(false);
         return;
       }
 
-      // Fetch student's booking history - Approved and Rejected bookings ARE the notifications
+      // Fetch booking history for student
       const response = await fetch(
         `http://localhost:5000/api/reservation/student/history?erp=${erp}`
       );
@@ -30,7 +38,7 @@ const Notifications = ({ studentERP }) => {
       console.log("BOOKINGS FOR NOTIFICATIONS:", result);
 
       if (result.success) {
-        // Filter only Approved and Rejected bookings - these are the "notifications"
+        // Filter only approved or rejected bookings
         const notificationBookings = result.data.filter(booking => {
           const status = booking.STATUS || booking.status;
           return status === 'Approved' || status === 'Rejected';
@@ -38,22 +46,29 @@ const Notifications = ({ studentERP }) => {
 
         // Sort by date (newest first)
         notificationBookings.sort((a, b) => {
-          const dateA = new Date(a.CREATED_DATE || a.created_date || a.BOOKING_DATE || a.booking_date);
-          const dateB = new Date(b.CREATED_DATE || b.created_date || b.BOOKING_DATE || b.booking_date);
+          const dateA = new Date(
+            a.CREATED_DATE || a.created_date || a.BOOKING_DATE || a.booking_date
+          );
+          const dateB = new Date(
+            b.CREATED_DATE || b.created_date || b.BOOKING_DATE || b.booking_date
+          );
           return dateB - dateA;
         });
 
-        setNotifications(notificationBookings);
+        setNotifications(notificationBookings); // Save to state
       } else {
         console.error(result.error || "Failed to load notifications");
       }
     } catch (err) {
       console.error("Error loading notifications:", err);
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading
     }
   };
 
+  // ------------------- UTILITY FUNCTIONS -------------------
+
+  // Format date into readable format
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -64,6 +79,7 @@ const Notifications = ({ studentERP }) => {
     });
   };
 
+  // Format time into readable format
   const formatTime = (timeString) => {
     if (!timeString) return '';
     if (timeString.includes('T')) {
@@ -77,6 +93,7 @@ const Notifications = ({ studentERP }) => {
     return timeString;
   };
 
+  // Return icon for approved or rejected status
   const getStatusIcon = (status) => {
     if (status === 'Approved') {
       return (
@@ -101,7 +118,7 @@ const Notifications = ({ studentERP }) => {
     return null;
   };
 
-  // Helper to get field value (handles both object and array formats from backend)
+  // Safely get a field from booking data (handles objects or arrays)
   const getField = (booking, fieldName, arrayIndex) => {
     if (typeof booking === 'object' && !Array.isArray(booking)) {
       return booking[fieldName] || booking[fieldName.toLowerCase()];
@@ -109,7 +126,9 @@ const Notifications = ({ studentERP }) => {
     return booking[arrayIndex];
   };
 
-  // Filter notifications
+  // ------------------- FILTERING -------------------
+
+  // Apply current filter to notifications
   const filteredNotifications = notifications.filter(n => {
     const status = getField(n, 'STATUS', 9) || getField(n, 'status', 9);
     if (filter === 'all') return true;
@@ -118,18 +137,23 @@ const Notifications = ({ studentERP }) => {
     return true;
   });
 
+  // Count approved notifications
   const approvedCount = notifications.filter(n => {
     const status = getField(n, 'STATUS', 9) || getField(n, 'status', 9);
     return status === 'Approved';
   }).length;
 
+  // Count rejected notifications
   const rejectedCount = notifications.filter(n => {
     const status = getField(n, 'STATUS', 9) || getField(n, 'status', 9);
     return status === 'Rejected';
   }).length;
 
+  // ------------------- RENDER -------------------
   return (
     <div className="notifications-container">
+      
+      {/* Header with title, description, filter, and refresh */}
       <div className="notifications-header">
         <div className="header-left">
           <h2>Notifications</h2>
@@ -155,7 +179,7 @@ const Notifications = ({ studentERP }) => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats cards */}
       <div className="notifications-stats">
         <div className="stat-card total">
           <span className="stat-number">{notifications.length}</span>
@@ -171,6 +195,7 @@ const Notifications = ({ studentERP }) => {
         </div>
       </div>
 
+      {/* Loading or empty state */}
       {loading ? (
         <div className="loading-container">
           <div className="spinner"></div>
@@ -188,9 +213,10 @@ const Notifications = ({ studentERP }) => {
           <p>When your booking requests are approved or rejected, you'll see updates here.</p>
         </div>
       ) : (
+        /* Notification cards */
         <div className="notifications-list">
           {filteredNotifications.map((notification, index) => {
-            // Get fields - handle both object and array formats
+            // Extract all relevant fields safely
             const bookingId = getField(notification, 'BOOKING_ID', 0) || getField(notification, 'booking_id', 0);
             const roomName = getField(notification, 'ROOM_NAME', 3) || getField(notification, 'room_name', 3);
             const roomType = getField(notification, 'ROOM_TYPE', 4) || getField(notification, 'room_type', 4);
@@ -208,23 +234,22 @@ const Notifications = ({ studentERP }) => {
                 className={`notification-card ${status?.toLowerCase()}`}
               >
                 {getStatusIcon(status)}
-                
+
                 <div className="notification-content">
+                  {/* Header: Booking Request + Status */}
                   <div className="notification-header">
-                    <h3 className="notification-title">
-                      Booking Request {status}
-                    </h3>
-                    <span className={`status-tag ${status?.toLowerCase()}`}>
-                      {status}
-                    </span>
+                    <h3 className="notification-title">Booking Request {status}</h3>
+                    <span className={`status-tag ${status?.toLowerCase()}`}>{status}</span>
                   </div>
-                  
+
+                  {/* Message for approved/rejected */}
                   <p className="notification-message">
                     {status === 'Approved' 
                       ? 'Great news! Your booking request has been approved.' 
                       : 'Unfortunately, your booking request has been rejected.'}
                   </p>
 
+                  {/* Booking details */}
                   <div className="booking-details">
                     <div className="detail-row">
                       <span className="detail-label">Room:</span>
@@ -262,6 +287,7 @@ const Notifications = ({ studentERP }) => {
                     </div>
                   </div>
 
+                  {/* Footer: Created date */}
                   {createdDate && (
                     <div className="notification-footer">
                       <span className="notification-time">

@@ -1,25 +1,37 @@
+// Import React and hooks
 import React, { useState, useEffect } from 'react';
+// Import component-specific CSS
 import './Announcements.css';
 
+// StudentAnnouncements component
 const StudentAnnouncements = () => {
-  const [announcements, setAnnouncements] = useState([]);
-  const [allBuildings, setAllBuildings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingBuildings, setLoadingBuildings] = useState(false);
-  const [error, setError] = useState('');
-  const [selectedBuilding, setSelectedBuilding] = useState('all'); // 'all' or building name
-  const [filteredAnnouncements, setFilteredAnnouncements] = useState([]);
+  // State variables
+  const [announcements, setAnnouncements] = useState([]);               // Holds all announcements
+  const [allBuildings, setAllBuildings] = useState([]);                 // Holds list of buildings
+  const [loading, setLoading] = useState(true);                         // Loading state for announcements
+  const [loadingBuildings, setLoadingBuildings] = useState(false);      // Loading state for buildings
+  const [error, setError] = useState('');                               // Error messages
+  const [selectedBuilding, setSelectedBuilding] = useState('all');      // Currently selected building filter
+  const [filteredAnnouncements, setFilteredAnnouncements] = useState([]); // Announcements after applying building filter
 
+  // ----------------------------
+  // Load data on component mount
+  // ----------------------------
   useEffect(() => {
-    loadAnnouncements();
-    loadBuildings();
+    loadAnnouncements();  // Load announcements from API
+    loadBuildings();      // Load buildings from API
   }, []);
 
-  // Filter announcements when selectedBuilding or announcements changes
+  // ----------------------------
+  // Filter announcements whenever
+  // selectedBuilding or announcements change
+  // ----------------------------
   useEffect(() => {
     if (selectedBuilding === 'all') {
+      // Show all announcements if no building is selected
       setFilteredAnnouncements(announcements);
     } else {
+      // Filter announcements by building (case-insensitive)
       const filtered = announcements.filter(ann => 
         ann.building && ann.building.toLowerCase() === selectedBuilding.toLowerCase()
       );
@@ -27,10 +39,13 @@ const StudentAnnouncements = () => {
     }
   }, [selectedBuilding, announcements]);
 
+  // ----------------------------
+  // Load buildings from API
+  // ----------------------------
   const loadBuildings = async () => {
     try {
-      setLoadingBuildings(true);
-      const response = await fetch('http://localhost:5000/api/buildings');
+      setLoadingBuildings(true);  // Start loading
+      const response = await fetch('http://localhost:5000/api/buildings'); // API call
       
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
@@ -39,28 +54,32 @@ const StudentAnnouncements = () => {
       const data = await response.json();
       console.log('🔍 Buildings API response:', data);
       
-      // Handle different response formats
+      // Handle multiple response formats
       if (Array.isArray(data)) {
-        setAllBuildings(data);
+        setAllBuildings(data);  // Direct array
       } else if (data.success && Array.isArray(data.data)) {
-        setAllBuildings(data.data);
+        setAllBuildings(data.data);  // Success + data object
       } else if (Array.isArray(data.data)) {
-        setAllBuildings(data.data);
+        setAllBuildings(data.data);  // Just data array
       } else {
         console.error('Invalid buildings data structure:', data);
       }
     } catch (err) {
       console.error('Error fetching buildings:', err);
     } finally {
-      setLoadingBuildings(false);
+      setLoadingBuildings(false);  // End loading
     }
   };
 
+  // ----------------------------
+  // Load announcements from API
+  // ----------------------------
   const loadAnnouncements = async () => {
     try {
-      setLoading(true);
-      setError('');
+      setLoading(true);    // Start loading
+      setError('');        // Clear previous errors
 
+      // Ensure user is logged in
       const userStr = localStorage.getItem('user');
       if (!userStr) {
         setError('Please login first');
@@ -78,14 +97,14 @@ const StudentAnnouncements = () => {
         return;
       }
 
-      // Sort newest first
+      // Sort announcements by newest first
       const sorted = data.data.sort((a, b) => {
         const dateA = new Date(a.date_posted || a.created_date);
         const dateB = new Date(b.date_posted || b.created_date);
         return dateB - dateA;
       });
 
-      // Normalize format
+      // Normalize announcement data to consistent format
       const transformed = sorted.map((item) => ({
         id: item.announcement_id || item.ANNOUNCEMENT_ID,
         title: item.title || item.TITLE || 'No Title',
@@ -101,10 +120,13 @@ const StudentAnnouncements = () => {
       setError("Unable to connect to server.");
       console.error(err);
     } finally {
-      setLoading(false);
+      setLoading(false);  // End loading
     }
   };
 
+  // ----------------------------
+  // Format date for display
+  // ----------------------------
   const formatDate = (dateString) => {
     if (!dateString) return "Not specified";
     const date = new Date(dateString);
@@ -121,7 +143,7 @@ const StudentAnnouncements = () => {
   };
 
   // ----------------------------
-  // UI RETURN
+  // Render loading state
   // ----------------------------
   if (loading) {
     return (
@@ -139,6 +161,9 @@ const StudentAnnouncements = () => {
     );
   }
 
+  // ----------------------------
+  // Render error state
+  // ----------------------------
   if (error) {
     return (
       <div className="announcements-container">
@@ -155,6 +180,9 @@ const StudentAnnouncements = () => {
     );
   }
 
+  // ----------------------------
+  // Render main announcements UI
+  // ----------------------------
   return (
     <div className="announcements-container">
 
@@ -165,6 +193,7 @@ const StudentAnnouncements = () => {
           <p>Stay updated with important notices and announcements</p>
         </div>
 
+        {/* Refresh button */}
         <div className="header-actions">
           <button className="refresh-btn" onClick={loadAnnouncements}>
             ↻ Refresh
@@ -181,6 +210,8 @@ const StudentAnnouncements = () => {
         borderLeft: '4px solid #550707'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+          
+          {/* Building filter dropdown */}
           <div>
             <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>Filter Announcements</h3>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -198,7 +229,7 @@ const StudentAnnouncements = () => {
                   fontSize: '14px',
                   minWidth: '200px'
                 }}
-                disabled={loadingBuildings}
+                disabled={loadingBuildings}  // Disable while loading
               >
                 <option value="all">All Buildings</option>
                 {loadingBuildings ? (
@@ -215,6 +246,8 @@ const StudentAnnouncements = () => {
                   })
                 )}
               </select>
+
+              {/* Clear filter button */}
               {selectedBuilding !== 'all' && (
                 <button
                   onClick={() => setSelectedBuilding('all')}
@@ -233,6 +266,7 @@ const StudentAnnouncements = () => {
             </div>
           </div>
           
+          {/* Filter stats */}
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '14px', color: '#666' }}>
               <div><strong>Total Announcements:</strong> {announcements.length}</div>
@@ -244,7 +278,7 @@ const StudentAnnouncements = () => {
           </div>
         </div>
         
-        {/* Quick Building Stats */}
+        {/* Quick building stats */}
         <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #eee' }}>
           <div style={{ fontSize: '13px', color: '#666' }}>
             <strong>Buildings with announcements:</strong>{' '}
@@ -285,6 +319,7 @@ const StudentAnnouncements = () => {
           filteredAnnouncements.map((a) => (
             <div key={a.id} className="announcement-card">
               
+              {/* Header with title and date */}
               <div className="announcement-header">
                 <div>
                   <h3 className="announcement-title">{a.title}</h3>
@@ -306,6 +341,7 @@ const StudentAnnouncements = () => {
                 <span className="announcement-date">{formatDate(a.date)}</span>
               </div>
 
+              {/* Meta info */}
               <div className="announcement-meta">
                 <span><strong>Posted by:</strong> {a.posted_by}</span>
                 {a.building !== "General" && (
@@ -313,6 +349,7 @@ const StudentAnnouncements = () => {
                 )}
               </div>
 
+              {/* Announcement content */}
               <div className="announcement-content">
                 <p>{a.description}</p>
               </div>
@@ -325,4 +362,5 @@ const StudentAnnouncements = () => {
   );
 };
 
+// Export the component
 export default StudentAnnouncements;

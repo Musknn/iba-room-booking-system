@@ -1,91 +1,133 @@
+/* ================================
+   Main booking history wrapper
+   ================================ */
 .booking-history {
-  width: 100%;
+  width: 100%; /* Makes the booking history section span full available width */
 }
 
+/* ================================
+   Heading inside booking history
+   ================================ */
 .booking-history h2 {
-  color: #550707;
-  margin-bottom: 15px;
-  font-size: 24px;
-  font-weight: 600;
+  color: #550707;        /* Dark maroon color matching system theme */
+  margin-bottom: 15px;  /* Space below heading */
+  font-size: 24px;      /* Larger font for section title */
+  font-weight: 600;     /* Semi-bold for emphasis */
 }
 
+/* ================================
+   Description paragraph under heading
+   ================================ */
 .booking-history > p {
-  color: #666;
-  margin-bottom: 30px;
-  font-size: 16px;
+  color: #666;          /* Muted gray for secondary text */
+  margin-bottom: 30px; /* Space before the table container */
+  font-size: 16px;     /* Standard readable font size */
 }
 
+/* ================================
+   Table container styling
+   ================================ */
 .bookings-container {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  border: 2px solid #e0e0e0;
-  transition: all 0.3s ease;
+  background: white;           /* White background for contrast */
+  padding: 20px;               /* Inner spacing */
+  border-radius: 8px;          /* Rounded corners */
+  border: 2px solid #e0e0e0;   /* Light border */
+  transition: all 0.3s ease;   /* Smooth hover animation */
 }
 
+/* Hover effect for container */
 .bookings-container:hover {
-  border-color: #550707;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-color: #550707;                  /* Highlight border on hover */
+  transform: translateY(-2px);            /* Slight lift effect */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Soft shadow */
 }
 
+/* ================================
+   Booking history table
+   ================================ */
 .bookings-table {
-  width: 100%;
-  border-collapse: collapse;
+  width: 100%;              /* Full-width table */
+  border-collapse: collapse; /* Removes spacing between table cells */
 }
 
+/* ================================
+   Table header cells
+   ================================ */
 .bookings-table th {
-  background: #550707;
-  color: white;
-  padding: 15px 20px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 14px;
+  background: #550707; /* Dark theme color */
+  color: white;        /* White text for contrast */
+  padding: 15px 20px; /* Comfortable spacing */
+  text-align: left;   /* Left-aligned column titles */
+  font-weight: 600;   /* Bold headers */
+  font-size: 14px;    /* Slightly smaller than body text */
 }
 
+/* ================================
+   Table body cells
+   ================================ */
 .bookings-table td {
-  padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
-  color: #333;
-  font-size: 14px;
+  padding: 15px 20px;            /* Cell padding */
+  border-bottom: 1px solid #e0e0e0; /* Row separator */
+  color: #333;                   /* Dark gray text */
+  font-size: 14px;               /* Standard size */
 }
 
+/* Removes border from last row */
 .bookings-table tr:last-child td {
   border-bottom: none;
 }
 
+/* Row hover effect */
 .bookings-table tr:hover {
-  background: #f8f9fa;
+  background: #f8f9fa; /* Light gray highlight */
 }
 
+/* ================================
+   Booking status badge base style
+   ================================ */
 .status {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
+  padding: 6px 12px;       /* Inner spacing for pill shape */
+  border-radius: 20px;     /* Rounded badge */
+  font-size: 12px;         /* Small text */
+  font-weight: 600;        /* Bold for visibility */
+  text-transform: uppercase; /* Makes status labels uniform */
 }
 
+/* ================================
+   Status: Confirmed
+   ================================ */
 .status.confirmed {
-  background: #d4edda;
-  color: #155724;
+  background: #d4edda; /* Light green */
+  color: #155724;      /* Dark green text */
 }
 
+/* ================================
+   Status: Completed
+   ================================ */
 .status.completed {
-  background: #d1ecf1;
-  color: #0c5460;
+  background: #d1ecf1; /* Light blue */
+  color: #0c5460;      /* Dark blue text */
 }
 
+/* ================================
+   Status: Pending
+   ================================ */
 .status.pending {
-  background: #fff3cd;
-  color: #856404;
+  background: #fff3cd; /* Light yellow */
+  color: #856404;      /* Dark yellow/brown text */
 }
 
+/* ================================
+   Responsive styles for tablets & mobile
+   ================================ */
 @media (max-width: 768px) {
+  
+  /* Reduce padding for smaller screens */
   .bookings-container {
     padding: 15px;
   }
   
+  /* Compact table spacing on mobile */
   .bookings-table th,
   .bookings-table td {
     padding: 10px 12px;

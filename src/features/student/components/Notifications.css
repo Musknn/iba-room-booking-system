@@ -1,17 +1,24 @@
+/* ===========================
+   Container
+=========================== */
 .notifications-container {
-  padding: 20px;
-  max-width: 100%;
+  padding: 20px; /* Adds space inside container */
+  max-width: 100%; /* Full width */
 }
 
+/* ===========================
+   Header Section
+=========================== */
 .notifications-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  display: flex; /* Flex layout */
+  justify-content: space-between; /* Space between title and actions */
+  align-items: flex-start; /* Align items at the top */
   margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 15px;
+  flex-wrap: wrap; /* Wrap on small screens */
+  gap: 15px; /* Gap between items */
 }
 
+/* Left side of header: title and description */
 .header-left h2 {
   margin: 0 0 5px 0;
   color: #333;
@@ -24,9 +31,10 @@
   font-size: 14px;
 }
 
+/* Badge for unread notifications */
 .unread-badge {
   display: inline-block;
-  background: #800000;
+  background: #800000; /* Dark red */
   color: white;
   padding: 3px 10px;
   border-radius: 12px;
@@ -34,6 +42,7 @@
   margin-top: 8px;
 }
 
+/* Right side of header: actions like filter and refresh */
 .header-actions {
   display: flex;
   gap: 10px;
@@ -41,6 +50,7 @@
   flex-wrap: wrap;
 }
 
+/* Filter dropdown */
 .filter-select {
   padding: 8px 12px;
   border-radius: 6px;
@@ -50,6 +60,7 @@
   cursor: pointer;
 }
 
+/* Button to mark all notifications */
 .mark-all-btn {
   padding: 8px 16px;
   background: #666;
@@ -65,6 +76,7 @@
   background: #555;
 }
 
+/* Refresh button */
 .refresh-btn {
   padding: 8px 16px;
   background: #800000;
@@ -85,7 +97,9 @@
   cursor: not-allowed;
 }
 
-/* Stats */
+/* ===========================
+   Stats Cards
+=========================== */
 .notifications-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -99,24 +113,13 @@
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border-left: 4px solid #ddd;
+  border-left: 4px solid #ddd; /* Colored left border by type */
 }
 
-.stat-card.total {
-  border-left-color: #333;
-}
-
-.stat-card.approved {
-  border-left-color: #28a745;
-}
-
-.stat-card.rejected {
-  border-left-color: #dc3545;
-}
-
-.stat-card.unread {
-  border-left-color: #800000;
-}
+.stat-card.total { border-left-color: #333; }
+.stat-card.approved { border-left-color: #28a745; }
+.stat-card.rejected { border-left-color: #dc3545; }
+.stat-card.unread { border-left-color: #800000; }
 
 .stat-number {
   display: block;
@@ -133,7 +136,9 @@
   text-transform: uppercase;
 }
 
-/* Loading */
+/* ===========================
+   Loading State
+=========================== */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -147,7 +152,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid #f0f0f0;
-  border-top-color: #800000;
+  border-top-color: #800000; /* Spin color */
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 15px;
@@ -157,7 +162,9 @@
   to { transform: rotate(360deg); }
 }
 
-/* Empty State */
+/* ===========================
+   Empty State
+=========================== */
 .no-notifications {
   text-align: center;
   padding: 60px 20px;
@@ -188,13 +195,16 @@
   font-size: 14px;
 }
 
-/* Notifications List */
+/* ===========================
+   Notifications List
+=========================== */
 .notifications-list {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
+/* Individual notification card */
 .notification-card {
   display: flex;
   gap: 15px;
@@ -212,19 +222,16 @@
 }
 
 .notification-card.unread {
-  background: #fffef5;
+  background: #fffef5; /* Highlight unread */
   border-left-color: #800000;
 }
 
-.notification-card.approved {
-  border-left-color: #28a745;
-}
+.notification-card.approved { border-left-color: #28a745; }
+.notification-card.rejected { border-left-color: #dc3545; }
 
-.notification-card.rejected {
-  border-left-color: #dc3545;
-}
-
-/* Status Icon */
+/* ===========================
+   Status Icon
+=========================== */
 .status-icon {
   width: 48px;
   height: 48px;
@@ -240,17 +247,12 @@
   height: 24px;
 }
 
-.status-icon.approved {
-  background: #e8f5e9;
-  color: #28a745;
-}
+.status-icon.approved { background: #e8f5e9; color: #28a745; }
+.status-icon.rejected { background: #ffebee; color: #dc3545; }
 
-.status-icon.rejected {
-  background: #ffebee;
-  color: #dc3545;
-}
-
-/* Notification Content */
+/* ===========================
+   Notification Content
+=========================== */
 .notification-content {
   flex: 1;
   min-width: 0;
@@ -286,7 +288,9 @@
   line-height: 1.4;
 }
 
-/* Booking Details */
+/* ===========================
+   Booking Details Section
+=========================== */
 .booking-details {
   background: #f8f9fa;
   padding: 15px;
@@ -299,9 +303,7 @@
   margin-bottom: 8px;
 }
 
-.detail-row:last-child {
-  margin-bottom: 0;
-}
+.detail-row:last-child { margin-bottom: 0; }
 
 .detail-label {
   width: 100px;
@@ -321,7 +323,9 @@
   text-transform: capitalize;
 }
 
-/* Notification Footer */
+/* ===========================
+   Footer Section
+=========================== */
 .notification-footer {
   display: flex;
   justify-content: space-between;
@@ -335,6 +339,7 @@
   color: #888;
 }
 
+/* Status tag in header */
 .status-tag {
   padding: 4px 12px;
   border-radius: 15px;
@@ -342,45 +347,27 @@
   font-weight: 600;
 }
 
-.status-tag.approved {
-  background: #e8f5e9;
-  color: #28a745;
-}
+.status-tag.approved { background: #e8f5e9; color: #28a745; }
+.status-tag.rejected { background: #ffebee; color: #dc3545; }
 
-.status-tag.rejected {
-  background: #ffebee;
-  color: #dc3545;
-}
-
-/* Responsive */
+/* ===========================
+   Responsive Design
+=========================== */
 @media (max-width: 768px) {
-  .notifications-header {
-    flex-direction: column;
-  }
+  .notifications-header { flex-direction: column; }
 
   .header-actions {
     width: 100%;
     justify-content: flex-start;
   }
 
-  .notification-card {
-    flex-direction: column;
-  }
+  .notification-card { flex-direction: column; }
 
-  .status-icon {
-    align-self: flex-start;
-  }
+  .status-icon { align-self: flex-start; }
 
-  .detail-row {
-    flex-direction: column;
-  }
+  .detail-row { flex-direction: column; }
 
-  .detail-label {
-    width: 100%;
-    margin-bottom: 2px;
-  }
+  .detail-label { width: 100%; margin-bottom: 2px; }
 
-  .notifications-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .notifications-stats { grid-template-columns: repeat(2, 1fr); }
 }

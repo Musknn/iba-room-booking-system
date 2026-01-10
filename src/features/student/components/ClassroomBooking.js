@@ -1,33 +1,62 @@
 import React, { useState, useEffect } from "react";
 
+/*
+  ClassroomBooking Component
+  ---------------------------
+  Handles the complete classroom booking flow for students:
+  1) Select slot, date, and building
+  2) View available classrooms
+  3) Confirm and create a booking
+*/
+
 const ClassroomBooking = () => {
+
+  /* ---------------- STATE MANAGEMENT ---------------- */
+
+  // Controls which step of the booking flow is active (1, 2, or 3)
   const [step, setStep] = useState(1);
+
+  // Stores all buildings fetched from the backend
   const [buildings, setBuildings] = useState([]);
+
+  // Stores rooms returned by the availability search
   const [availableRooms, setAvailableRooms] = useState([]);
 
+  // Central form state holding user selections
   const [form, setForm] = useState({
-    slot: "",
-    date: "",
-    buildingId: "",
-    roomId: "",
-    purpose: ""
+    slot: "",        // Selected time slot (human-readable)
+    date: "",        // Booking date
+    buildingId: "",  // Selected building ID
+    roomId: "",      // Selected room ID
+    purpose: ""      // Purpose of booking
   });
 
-  // 🔥 FIXED ERP FOR STUDENT (AND BI)
+  /* ---------------- USER IDENTIFICATION ---------------- */
+
+  // Retrieve logged-in user object from localStorage
+  // Supports both lowercase and uppercase ERP formats
   const savedUser = JSON.parse(localStorage.getItem("user"));
   const USER_ERP = savedUser?.erp || savedUser?.ERP || 0;
 
-  // Time slot conversion to match backend
+  /* ---------------- SLOT → TIME CONVERSION ---------------- */
+
+  /*
+    slotMap converts user-facing slot labels
+    into backend-compatible start and end times
+  */
   const slotMap = {
     "08:30-09:45": { start: "08:30", end: "09:45" },
     "10:00-11:15": { start: "10:00", end: "11:15" },
     "11:30-12:45": { start: "11:30", end: "12:45" },
-    "1:00-2:15": { start: "13:00", end: "14:15" },
-    "2:30-3:45": { start: "14:30", end: "15:45" },
-    "4:00-5:15": { start: "16:00", end: "17:15" },
-    "5:30-6:45": { start: "17:30", end: "18:45" }
+    "1:00-2:15":   { start: "13:00", end: "14:15" },
+    "2:30-3:45":   { start: "14:30", end: "15:45" },
+    "4:00-5:15":   { start: "16:00", end: "17:15" },
+    "5:30-6:45":   { start: "17:30", end: "18:45" }
   };
 
+  /* ---------------- FETCH BUILDINGS ON LOAD ---------------- */
+
+  // Runs once when component mounts
   useEffect(() => {
     fetch("http://localhost:5000/api/buildings")
       .then((res) => res.json())
@@ -35,13 +64,22 @@ const ClassroomBooking = () => {
       .catch((err) => console.log("Buildings Error:", err));
   }, []);
 
-  // ------------------- SEARCH ROOMS -------------------
+  /* ---------------- SEARCH AVAILABLE ROOMS ---------------- */
+
+  /*
+    Validates form input
+    Converts slot to start/end time
+    Calls backend API to fetch available classrooms
+  */
   const handleSearchRooms = async () => {
+
+    // Ensure all required fields are selected
     if (!form.slot || !form.date || !form.buildingId) {
       alert("Please fill all fields");
       return;
     }
 
+    // Convert selected slot to backend time format
     const slot = slotMap[form.slot];
     const { start, end } = slot;
 
@@ -52,6 +90,7 @@ const ClassroomBooking = () => {
 
       const result = await response.json();
 
+      // If rooms are found, move to Step 2
       if (result.success && result.data.length > 0) {
         setAvailableRooms(result.data);
         setStep(2);
@@ -64,8 +103,14 @@ const ClassroomBooking = () => {
     }
   };
 
-  // ------------------- CREATE BOOKING -------------------
+  /* ---------------- CREATE BOOKING ---------------- */
+
+  /*
+    Sends booking details to backend
+    Uses ERP, roomId, date, time range, and purpose
+  */
   const handleAddBooking = async () => {
+
     const slot = slotMap[form.slot];
     if (!slot) return alert("Invalid slot");
 
@@ -78,7 +123,7 @@ const ClassroomBooking = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            erp: USER_ERP,   // FIXED ✔
+            erp: USER_ERP,          // Logged-in student ERP
             roomId: Number(form.roomId),
             date: form.date,
             startTime: start,
@@ -92,7 +137,7 @@ const ClassroomBooking = () => {
 
       if (result.success) {
         alert("Booking Successfully Created!");
-        setStep(1); // Reset
+        setStep(1); // Reset flow to initial step
       } else {
         alert(result.error || "Failed to create booking");
       }
@@ -102,14 +147,15 @@ const ClassroomBooking = () => {
     }
   };
 
-  // ------------------- UI -------------------
+  /* ======================= UI RENDERING ======================= */
 
-  // STEP 1
+  /* ---------------- STEP 1: INPUT FORM ---------------- */
   if (step === 1) {
     return (
       <div>
         <h2>Add Booking</h2>
 
+        {/* Slot Selection */}
         <div className="form-group">
           <label>Slot</label>
           <select
@@ -126,6 +172,7 @@ const ClassroomBooking = () => {
           </select>
         </div>
 
+        {/* Date Selection */}
         <div className="form-group">
           <label>Date</label>
           <input
@@ -134,6 +181,7 @@ const ClassroomBooking = () => {
           />
         </div>
 
+        {/* Building Selection */}
         <div className="form-group">
           <label>Building</label>
           <select
@@ -155,7 +203,7 @@ const ClassroomBooking = () => {
     );
   }
 
-  // STEP 2: ROOM GRID
+  /* ---------------- STEP 2: AVAILABLE ROOMS GRID ---------------- */
   if (step === 2) {
     return (
       <div>
@@ -165,6 +213,7 @@ const ClassroomBooking = () => {
 
         <h2>Available Rooms</h2>
 
+        {/* Grid of available rooms */}
         <div
           style={{
             display: "grid",
@@ -205,8 +254,10 @@ const ClassroomBooking = () => {
     );
   }
 
-  // STEP 3: CONFIRM POPUP
+  /* ---------------- STEP 3: CONFIRMATION MODAL ---------------- */
   if (step === 3) {
+
+    // Find the selected room details
     const selectedRoom = availableRooms.find(
       (r) => r.ROOM_ID === form.roomId
     );
@@ -243,9 +294,10 @@ const ClassroomBooking = () => {
           <p><b>Date:</b> {form.date}</p>
           <p><b>Time:</b> {form.slot}</p>
 
-          {/* FIXED ERP DISPLAY */}
+          {/* ERP shown for verification */}
           <p><b>ERP:</b> {USER_ERP}</p>
 
+          {/* Purpose Input */}
           <textarea
             placeholder="Describe the purpose..."
             style={{

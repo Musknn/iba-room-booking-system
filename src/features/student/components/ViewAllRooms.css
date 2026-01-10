@@ -1,33 +1,40 @@
+/* ===========================
+   MAIN CONTAINER
+   =========================== */
 .view-all-rooms {
-  width: 100%;
+  width: 100%; /* Ensure the container takes full width */
 }
 
+/* PAGE TITLE */
 .view-all-rooms h2 {
-  color: #550707;
-  margin-bottom: 25px;
-  font-size: 24px;
-  font-weight: 600;
+  color: #550707;       /* Dark maroon color for heading */
+  margin-bottom: 25px;  /* Space below heading */
+  font-size: 24px;      /* Font size */
+  font-weight: 600;     /* Semi-bold */
 }
 
-/* Filters Section */
+/* ===========================
+   FILTERS SECTION
+   =========================== */
 .filters-section {
-  background: #f8f9fa;
-  padding: 25px 30px;
-  border-radius: 8px;
-  border-left: 4px solid #550707;
-  margin-bottom: 30px;
-  display: flex;
-  gap: 30px;
-  align-items: end;
-  flex-wrap: wrap;
-  width: 100%;
+  background: #f8f9fa;        /* Light gray background for the filter area */
+  padding: 25px 30px;          /* Internal spacing */
+  border-radius: 8px;          /* Rounded corners */
+  border-left: 4px solid #550707; /* Decorative left border */
+  margin-bottom: 30px;         /* Space below filters */
+  display: flex;               /* Flex layout for children */
+  gap: 30px;                   /* Space between flex items */
+  align-items: end;            /* Align filter items at bottom */
+  flex-wrap: wrap;             /* Wrap on smaller screens */
+  width: 100%;                 /* Full width */
 }
 
+/* INDIVIDUAL FILTER GROUPS (Dropdown + Label, etc.) */
 .filter-group {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 220px;
+  flex-direction: column;  /* Stack label + input vertically */
+  gap: 8px;                /* Space between label and input */
+  min-width: 220px;        /* Minimum width for consistency */
 }
 
 .filter-group label {
@@ -36,59 +43,69 @@
   font-size: 14px;
 }
 
+/* INPUTS AND SELECTS IN FILTERS */
 .filter-select,
 .search-input {
-  padding: 12px 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
+  padding: 12px 15px;       /* Internal padding */
+  border: 2px solid #e0e0e0; /* Light gray border */
+  border-radius: 6px;       /* Rounded corners */
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease; /* Smooth hover/focus effect */
   background: white;
-  width: 100%;
+  width: 100%;              /* Take full width of parent */
 }
 
+/* INPUT FOCUS STATES */
 .filter-select:focus,
 .search-input:focus {
-  outline: none;
-  border-color: #550707;
-  box-shadow: 0 0 0 3px rgba(85, 7, 7, 0.1);
+  outline: none;            /* Remove default outline */
+  border-color: #550707;    /* Highlight border */
+  box-shadow: 0 0 0 3px rgba(85, 7, 7, 0.1); /* Subtle shadow effect */
 }
 
+/* FILTER STATISTICS (optional text on the right) */
 .filter-stats {
   color: #666;
   font-size: 14px;
   font-weight: 500;
-  margin-left: auto;
+  margin-left: auto; /* Push to the right in flex container */
   align-self: center;
 }
 
-/* Rooms Grid - Consistent sizing */
+/* ===========================
+   ROOMS GRID
+   =========================== */
 .rooms-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive columns */
+  gap: 25px;      /* Space between cards */
   width: 100%;
 }
 
+/* ===========================
+   INDIVIDUAL ROOM CARD
+   =========================== */
 .room-card {
   background: white;
-  padding: 25px;
-  border-radius: 8px;
-  border-left: 4px solid #550707;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border: 1px solid #e0e0e0;
-  min-height: 180px;
+  padding: 25px;              /* Internal spacing */
+  border-radius: 8px;         /* Rounded corners */
+  border-left: 4px solid #550707; /* Decorative left border */
+  transition: all 0.3s ease;  /* Smooth hover animation */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Subtle shadow */
+  border: 1px solid #e0e0e0;  /* Outer border */
+  min-height: 180px;           /* Ensure consistent height */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-between; /* Space between content and footer */
 }
 
+/* HOVER EFFECT ON ROOM CARDS */
 .room-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  transform: translateY(-3px); /* Slight lift */
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15); /* Deeper shadow */
 }
 
+/* ROOM CARD TITLE */
 .room-card h3 {
   margin: 0 0 15px 0;
   color: #333;
@@ -96,6 +113,7 @@
   font-weight: 600;
 }
 
+/* ROOM CARD TEXT */
 .room-card p {
   margin: 6px 0;
   color: #666;
@@ -103,36 +121,44 @@
   line-height: 1.4;
 }
 
+/* STRONG ELEMENTS */
 .room-card strong {
   color: #333;
   font-weight: 600;
 }
 
+/* ===========================
+   ROOM AVAILABILITY TAG
+   =========================== */
 .availability {
   display: inline-block;
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 20px;        /* Pill shape */
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   margin-top: 10px;
-  align-self: flex-start;
+  align-self: flex-start;      /* Align tag to start */
 }
 
+/* AVAILABLE / OCCUPIED STATES */
 .availability.available {
-  background: #d4edda;
-  color: #155724;
+  background: #d4edda;  /* Green background */
+  color: #155724;       /* Dark green text */
   border: 1px solid #c3e6cb;
 }
 
 .availability.occupied {
-  background: #f8d7da;
-  color: #721c24;
+  background: #f8d7da;  /* Red background */
+  color: #721c24;       /* Dark red text */
   border: 1px solid #f1b0b7;
 }
 
+/* ===========================
+   NO ROOMS FOUND STATE
+   =========================== */
 .no-rooms-found {
-  grid-column: 1 / -1;
+  grid-column: 1 / -1;      /* Span full grid */
   text-align: center;
   padding: 80px 20px;
   background: #f8f9fa;
@@ -146,7 +172,9 @@
   font-size: 16px;
 }
 
-/* Ensure consistent grid layout */
+/* ===========================
+   GRID ADJUSTMENTS FOR LARGE SCREENS
+   =========================== */
 @media (min-width: 1200px) {
   .rooms-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -159,7 +187,9 @@
   }
 }
 
-/* Responsive Design */
+/* ===========================
+   RESPONSIVE DESIGN FOR MOBILE
+   =========================== */
 @media (max-width: 768px) {
   .filters-section {
     flex-direction: column;
@@ -187,7 +217,9 @@
   }
 }
 
-/* Loading Spinner */
+/* ===========================
+   LOADING PLACEHOLDER
+   =========================== */
 .loading-placeholder {
   grid-column: 1 / -1;
   text-align: center;
@@ -199,21 +231,25 @@
   color: #666;
 }
 
+/* LOADING SPINNER */
 .loading-spinner {
   width: 40px;
   height: 40px;
   border: 3px solid #f0f0f0;
-  border-top: 3px solid #550707;
+  border-top: 3px solid #550707; /* Spinner highlight color */
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
+/* SPINNER ANIMATION */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Clear button hover effect */
+/* ===========================
+   CLEAR BUTTON HOVER EFFECT
+   =========================== */
 .clear-btn:hover {
   background: #550707 !important;
   color: white !important;

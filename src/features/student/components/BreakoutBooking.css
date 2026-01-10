@@ -1,45 +1,60 @@
+/* ================================
+   MAIN CONTAINER
+   ================================ */
+
+/* Wrapper for the entire breakout booking section */
 .breakout-booking {
-  width: 100%;
+  width: 100%; /* Full-width layout within parent container */
 }
 
+/* Main heading styling */
 .breakout-booking h2 {
-  color: #550707;
+  color: #550707;         /* Maroon theme color */
   margin-bottom: 15px;
   font-size: 24px;
   font-weight: 600;
 }
 
+/* Description text below heading */
 .breakout-booking > p {
-  color: #666;
+  color: #666;            /* Muted gray for readability */
   margin-bottom: 30px;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.5;       /* Improves paragraph readability */
 }
 
+/* ================================
+   FILTERS SECTION
+   ================================ */
+
+/* Container holding slot, date, and building filters */
 .filters-section {
   display: flex;
-  gap: 25px;
+  gap: 25px;              /* Spacing between filter groups */
   margin-bottom: 30px;
   padding: 25px 30px;
-  background: #f8f9fa;
+  background: #f8f9fa;    /* Light background to separate filters */
   border-radius: 8px;
-  border-left: 4px solid #550707;
+  border-left: 4px solid #550707; /* Visual emphasis */
   width: 100%;
 }
 
+/* Individual filter group (label + input) */
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 200px;
+  min-width: 200px;       /* Prevents filters from becoming too small */
 }
 
+/* Filter labels */
 .filter-group label {
   font-weight: 600;
   color: #333;
   font-size: 14px;
 }
 
+/* Dropdown styling for slot/building filters */
 .filter-select {
   padding: 12px 15px;
   border: 2px solid #e0e0e0;
@@ -50,12 +65,18 @@
   width: 100%;
 }
 
+/* Focus state for accessibility and feedback */
 .filter-select:focus {
   outline: none;
   border-color: #550707;
   box-shadow: 0 0 0 3px rgba(85, 7, 7, 0.1);
 }
 
+/* ================================
+   AVAILABLE ROOMS SECTION
+   ================================ */
+
+/* Section heading for available breakout rooms */
 .available-breakout-rooms h3 {
   color: #550707;
   margin-bottom: 20px;
@@ -63,6 +84,7 @@
   font-weight: 600;
 }
 
+/* Grid layout for breakout room cards */
 .breakout-rooms-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -70,21 +92,28 @@
   width: 100%;
 }
 
+/* ================================
+   BREAKOUT ROOM CARD
+   ================================ */
+
+/* Individual breakout room card */
 .breakout-room-card {
   background: white;
   padding: 25px;
   border-radius: 8px;
-  border-left: 4px solid #550707;
+  border-left: 4px solid #550707; /* Highlights card */
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   border: 1px solid #e0e0e0;
 }
 
+/* Hover effect for interactivity */
 .breakout-room-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
+/* Room name */
 .breakout-room-card h4 {
   margin: 0 0 12px 0;
   color: #333;
@@ -92,18 +121,25 @@
   font-weight: 600;
 }
 
+/* Room metadata text */
 .breakout-room-card p {
   margin: 8px 0;
   color: #666;
   font-size: 14px;
 }
 
+/* Highlighted features text (e.g., room type, capacity) */
 .features {
   color: #550707 !important;
   font-weight: 600;
   font-size: 13px !important;
 }
 
+/* ================================
+   BOOK BUTTON
+   ================================ */
+
+/* Button used to book a breakout room */
 .book-btn {
   background: #550707;
   color: white;
@@ -118,40 +154,52 @@
   width: 100%;
 }
 
+/* Hover state for booking button */
 .book-btn:hover {
   background: #450606;
   transform: translateY(-1px);
 }
 
-/* Ensure 3-4 cards per row */
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+
+/* Force 3 cards per row on large screens */
 @media (min-width: 1200px) {
   .breakout-rooms-list {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
+/* Force 4 cards per row on extra-large screens */
 @media (min-width: 1400px) {
   .breakout-rooms-list {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
+/* Mobile-friendly layout */
 @media (max-width: 768px) {
+
+  /* Stack filters vertically */
   .filters-section {
     flex-direction: column;
     gap: 15px;
     padding: 20px;
   }
-  
+
+  /* Filters take full width on mobile */
   .filter-group {
     min-width: 100%;
   }
-  
+
+  /* Single-column room cards */
   .breakout-rooms-list {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  
+
+  /* Reduce padding for small screens */
   .breakout-room-card {
     padding: 20px;
   }

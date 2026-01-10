@@ -1,110 +1,114 @@
+/* ===================== MAIN CONTAINER ===================== */
 .classroom-booking {
-  width: 100%;
+  width: 100%; /* Make the booking container span full width of parent */
 }
 
 .classroom-booking h2 {
-  color: #550707;
-  margin-bottom: 15px;
-  font-size: 24px;
-  font-weight: 600;
+  color: #550707;          /* Maroon heading color */
+  margin-bottom: 15px;     /* Space below heading */
+  font-size: 24px;         /* Larger font size for title */
+  font-weight: 600;        /* Semi-bold font weight */
 }
 
 .classroom-booking > p {
-  color: #666;
-  margin-bottom: 30px;
-  font-size: 16px;
-  line-height: 1.5;
+  color: #666;             /* Gray text for paragraphs */
+  margin-bottom: 30px;     /* Space below paragraph */
+  font-size: 16px;         /* Normal readable text */
+  line-height: 1.5;        /* Better spacing between lines */
 }
 
+/* ===================== FILTER SECTION ===================== */
 .filters-section {
-  display: flex;
-  gap: 25px;
-  margin-bottom: 30px;
-  padding: 25px 30px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #550707;
+  display: flex;                   /* Horizontal layout for filter groups */
+  gap: 25px;                       /* Space between filter groups */
+  margin-bottom: 30px;             /* Space below filters */
+  padding: 25px 30px;              /* Internal padding */
+  background: #f8f9fa;             /* Light gray background */
+  border-radius: 8px;              /* Rounded corners */
+  border-left: 4px solid #550707;  /* Maroon accent on left */
   width: 100%;
 }
 
 .filter-group {
-  display: flex;
+  display: flex;          /* Stack label + select vertically */
   flex-direction: column;
-  gap: 8px;
-  min-width: 200px;
+  gap: 8px;               /* Space between label and select */
+  min-width: 200px;       /* Minimum width to prevent shrinking too much */
 }
 
 .filter-group label {
-  font-weight: 600;
-  color: #333;
+  font-weight: 600;       /* Semi-bold for readability */
+  color: #333;            /* Dark gray label text */
   font-size: 14px;
 }
 
 .filter-select {
-  padding: 12px 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
+  padding: 12px 15px;      /* Comfortable padding inside select */
+  border: 2px solid #e0e0e0; /* Light gray border */
+  border-radius: 6px;      /* Rounded corners */
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease; /* Smooth hover/focus transitions */
   background: white;
-  width: 100%;
+  width: 100%;             /* Fill container width */
 }
 
 .filter-select:focus {
-  outline: none;
-  border-color: #550707;
-  box-shadow: 0 0 0 3px rgba(85, 7, 7, 0.1);
+  outline: none;                  /* Remove default browser outline */
+  border-color: #550707;          /* Maroon border on focus */
+  box-shadow: 0 0 0 3px rgba(85, 7, 7, 0.1); /* Light glow effect */
 }
 
+/* ===================== AVAILABLE ROOMS ===================== */
 .available-classrooms h3 {
-  color: #550707;
-  margin-bottom: 20px;
+  color: #550707;         /* Maroon subheading */
+  margin-bottom: 20px;    /* Space below heading */
   font-size: 20px;
   font-weight: 600;
 }
 
 .classrooms-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
+  display: grid;                               /* Grid layout for cards */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Auto responsive columns */
+  gap: 25px;                                   /* Gap between cards */
   width: 100%;
 }
 
 .classroom-card {
-  background: white;
-  padding: 25px;
-  border-radius: 8px;
-  border: 2px solid #e0e0e0;
-  transition: all 0.3s ease;
+  background: white;                            /* Card background */
+  padding: 25px;                                /* Internal spacing */
+  border-radius: 8px;                           /* Rounded corners */
+  border: 2px solid #e0e0e0;                   /* Light gray border */
+  transition: all 0.3s ease;                    /* Smooth hover transitions */
 }
 
 .classroom-card:hover {
-  border-color: #550707;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-color: #550707;                        /* Maroon border on hover */
+  transform: translateY(-2px);                  /* Lift card slightly */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);      /* Soft shadow */
 }
 
 .classroom-card h4 {
-  margin: 0 0 10px 0;
-  color: #333;
+  margin: 0 0 10px 0;        /* Top 0, bottom 10px */
+  color: #333;               /* Dark heading color */
   font-size: 18px;
   font-weight: 600;
 }
 
 .classroom-card p {
-  margin: 5px 0;
-  color: #666;
+  margin: 5px 0;             /* Minimal vertical spacing */
+  color: #666;               /* Gray text */
   font-size: 14px;
 }
 
 .features {
-  color: #550707 !important;
+  color: #550707 !important;  /* Maroon features text (overrides defaults) */
   font-weight: 600;
   font-size: 13px !important;
 }
 
+/* ===================== BOOK BUTTON ===================== */
 .book-btn {
-  background: #550707;
+  background: #550707;      /* Maroon button */
   color: white;
   border: none;
   padding: 10px 20px;
@@ -117,40 +121,40 @@
 }
 
 .book-btn:hover {
-  background: #450606;
-  transform: translateY(-1px);
+  background: #450606;        /* Darker maroon on hover */
+  transform: translateY(-1px);/* Slight lift on hover */
 }
 
-/* Ensure 3-4 cards per row */
+/* ===================== RESPONSIVE GRID ===================== */
 @media (min-width: 1200px) {
   .classrooms-list {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* 3 cards per row on large screens */
   }
 }
 
 @media (min-width: 1400px) {
   .classrooms-list {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* 4 cards per row on very large screens */
   }
 }
 
 @media (max-width: 768px) {
   .filters-section {
-    flex-direction: column;
+    flex-direction: column; /* Stack filters vertically on small screens */
     gap: 15px;
     padding: 20px;
   }
   
   .filter-group {
-    min-width: 100%;
+    min-width: 100%;        /* Filters fill full width on mobile */
   }
   
   .classrooms-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single-column card layout */
     gap: 15px;
   }
   
   .classroom-card {
-    padding: 20px;
+    padding: 20px;           /* Slightly smaller padding on mobile */
   }
 }

@@ -1,3 +1,10 @@
+/* ============================================================
+   ANNOUNCEMENTS CONTAINER
+   ============================================================ */
+
+/* Main wrapper for the announcements page
+   - Centers content
+   - Limits maximum width for readability */
 .announcements {
   width: 100%;
   max-width: 1200px;
@@ -5,39 +12,53 @@
   padding: 20px;
 }
 
+/* ============================================================
+   HEADER SECTION
+   ============================================================ */
+
+/* Header containing title, description, and actions (e.g. refresh) */
 .announcements-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
-  flex-wrap: wrap;
+  flex-wrap: wrap;          /* Allows wrapping on smaller screens */
   gap: 20px;
 }
 
+/* Main heading style */
 .announcements-header h2 {
-  color: #550707;
+  color: #550707;           /* Primary theme color */
   margin-bottom: 5px;
   font-size: 28px;
   font-weight: 600;
 }
 
+/* Subtitle text under the heading */
 .announcements-header > div:first-child p {
   color: #666;
   font-size: 16px;
   margin: 0;
 }
 
+/* ============================================================
+   FILTER SECTION
+   ============================================================ */
+
+/* Wrapper for filter controls (label + dropdown) */
 .filter-section {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+/* Filter label styling */
 .filter-section label {
   font-weight: 500;
   color: #333;
 }
 
+/* Dropdown select used for building filter */
 .filter-select {
   padding: 8px 12px;
   border: 2px solid #e0e0e0;
@@ -48,11 +69,13 @@
   cursor: pointer;
 }
 
+/* Focus state for accessibility and feedback */
 .filter-select:focus {
   outline: none;
   border-color: #550707;
 }
 
+/* Information box showing current filter details */
 .filter-info {
   margin-bottom: 20px;
   padding: 10px 15px;
@@ -61,6 +84,7 @@
   border-left: 4px solid #550707;
 }
 
+/* Layout for filter info text */
 .filter-info p {
   margin: 0;
   display: flex;
@@ -68,6 +92,7 @@
   gap: 15px;
 }
 
+/* Button to clear active filters */
 .clear-filter-btn {
   background: #550707;
   color: white;
@@ -79,25 +104,33 @@
   transition: background 0.3s;
 }
 
+/* Hover feedback for clear filter button */
 .clear-filter-btn:hover {
   background: #3a0505;
 }
 
+/* ============================================================
+   ANNOUNCEMENT CARD
+   ============================================================ */
+
+/* Individual announcement card container */
 .announcement-card {
   background: white;
   padding: 25px;
   border-radius: 10px;
   border: 2px solid #e0e0e0;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease;   /* Smooth hover animation */
   margin-bottom: 20px;
 }
 
+/* Hover effect for better interactivity */
 .announcement-card:hover {
   border-color: #550707;
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
+/* Header inside each announcement card */
 .announcement-header {
   display: flex;
   justify-content: space-between;
@@ -107,14 +140,16 @@
   gap: 15px;
 }
 
+/* Announcement title */
 .announcement-header h3 {
   margin: 0;
   color: #333;
   font-size: 20px;
   font-weight: 600;
-  flex: 1;
+  flex: 1;   /* Allows title to take remaining space */
 }
 
+/* Date badge displayed on the card */
 .announcement-date {
   background: #550707;
   color: white;
@@ -122,9 +157,10 @@
   border-radius: 20px;
   font-size: 13px;
   font-weight: 500;
-  white-space: nowrap;
+  white-space: nowrap;   /* Prevents date from wrapping */
 }
 
+/* Metadata section (posted by, building, etc.) */
 .announcement-meta {
   display: flex;
   gap: 30px;
@@ -134,12 +170,14 @@
   flex-wrap: wrap;
 }
 
+/* Individual metadata item */
 .announcement-meta span {
   display: inline-flex;
   align-items: center;
   gap: 5px;
 }
 
+/* Main announcement text/content */
 .announcement-content {
   color: #444;
   line-height: 1.6;
@@ -149,6 +187,11 @@
   border-top: 1px solid #eee;
 }
 
+/* ============================================================
+   EMPTY, LOADING & ERROR STATES
+   ============================================================ */
+
+/* Displayed when there are no announcements */
 .no-announcements {
   text-align: center;
   padding: 60px 20px;
@@ -159,12 +202,15 @@
   border: 2px dashed #e0e0e0;
 }
 
-.loading, .error-message {
+/* Shared styling for loading and error text */
+.loading,
+.error-message {
   text-align: center;
   padding: 40px;
   font-size: 16px;
 }
 
+/* Error message styling */
 .error-message {
   color: #d32f2f;
   background: #ffebee;
@@ -173,6 +219,7 @@
   margin: 20px 0;
 }
 
+/* Retry button shown on error */
 .retry-btn {
   background: #550707;
   color: white;
@@ -185,34 +232,45 @@
   transition: background 0.3s;
 }
 
+/* Hover effect for retry button */
 .retry-btn:hover {
   background: #3a0505;
 }
 
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
 @media (max-width: 768px) {
+  /* Stack header elements vertically on smaller screens */
   .announcements-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
+  /* Make filter section take full width */
   .filter-section {
     width: 100%;
   }
-  
+
+  /* Allow dropdown to stretch */
   .filter-select {
     flex: 1;
   }
-  
+
+  /* Stack announcement header content vertically */
   .announcement-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
+  /* Stack metadata items */
   .announcement-meta {
     flex-direction: column;
     gap: 10px;
   }
-  
+
+  /* Reduce padding for smaller screens */
   .announcement-card {
     padding: 20px;
   }

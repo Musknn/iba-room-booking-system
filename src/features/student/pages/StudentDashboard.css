@@ -1,74 +1,94 @@
-/* src/features/student/pages/StudentDashboard.css */
+/* ========================================================
+   StudentDashboard.css
+   Specific styles for the StudentDashboard component
+   ======================================================== */
+
+/* Import shared dashboard styles */
 @import '../../shared/SharedDashboard.css';
 
-/* Student-specific styles can be added here if needed */
+/* ========================================================
+   MAIN DASHBOARD CONTAINER
+   ======================================================== */
 .student-dashboard {
-  min-height: 100vh;
-  background: #f8f9fa;
-  display: flex;
+  min-height: 100vh;           /* Full viewport height */
+  background: #f8f9fa;         /* Light gray background for dashboard */
+  display: flex;               /* Flex layout to allow sidebar + main content */
 }
 
-/* Navigation icon and badge styles */
+/* ========================================================
+   NAVIGATION TAB STYLES
+   ======================================================== */
 .nav-tab {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  position: relative;           /* Needed for positioning badges/dots */
+  display: flex;                /* Flex layout for icon + label */
+  align-items: center;          /* Vertically center content */
+  gap: 10px;                    /* Space between icon and label */
 }
 
+/* Icon inside navigation tab */
 .nav-icon {
-  font-size: 18px;
-  width: 24px;
-  text-align: center;
+  font-size: 18px;              /* Icon size */
+  width: 24px;                   /* Fixed width for alignment */
+  text-align: center;            /* Center the icon */
 }
 
+/* Label inside navigation tab */
 .nav-label {
-  flex: 1;
+  flex: 1;                      /* Take up remaining space */
 }
 
+/* Notification badge on tabs */
 .nav-badge {
-  background: #ff4444;
-  color: white;
-  font-size: 11px;
-  font-weight: bold;
-  padding: 2px 7px;
-  border-radius: 10px;
-  min-width: 18px;
-  text-align: center;
-  animation: pulse 2s infinite;
+  background: #ff4444;          /* Bright red for attention */
+  color: white;                 /* White text */
+  font-size: 11px;              /* Small font size */
+  font-weight: bold;            /* Bold for emphasis */
+  padding: 2px 7px;             /* Padding inside badge */
+  border-radius: 10px;          /* Rounded edges */
+  min-width: 18px;              /* Ensure consistent width */
+  text-align: center;           /* Center text */
+  animation: pulse 2s infinite; /* Pulse animation for attention */
 }
 
+/* ========================================================
+   PULSE ANIMATION FOR BADGES
+   ======================================================== */
 @keyframes pulse {
   0% {
-    transform: scale(1);
+    transform: scale(1);        /* Normal size */
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.1);      /* Slightly enlarged */
   }
   100% {
-    transform: scale(1);
+    transform: scale(1);        /* Return to normal size */
   }
 }
 
-/* Active tab with badge */
+/* ========================================================
+   ACTIVE NAV TAB STYLES
+   ======================================================== */
 .nav-tab.active .nav-badge {
-  background: #800000;
-
+  background: #800000;          /* Dark red for active tab badge */
 }
+
+/* ========================================================
+   ICON WRAPPER
+   ======================================================== */
 .icon-wrapper {
-  position: relative;
+  position: relative;           /* Needed for positioning notification dot */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Small red dot for notifications */
 .notification-dot {
-  width: 8px;
+  width: 8px;                   /* Small circle */
   height: 8px;
-  background: red;
-  border-radius: 50%;
-  position: absolute;
-  top: -2px;
-  right: -2px;
+  background: red;               /* Red color for unread notification */
+  border-radius: 50%;            /* Fully rounded */
+  position: absolute;            /* Positioned relative to parent */
+  top: -2px;                     /* Slightly above top */
+  right: -2px;                   /* Slightly to the right */
 }
-
