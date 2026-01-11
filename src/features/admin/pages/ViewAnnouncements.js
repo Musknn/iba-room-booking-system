@@ -1,393 +1,269 @@
-import React, { useState, useEffect } from 'react';
-import './Announcements.css';
+import React, { useState, useEffect } from "react";
 
-const ViewAnnouncements = () => {
-  const [myAnnouncements, setMyAnnouncements] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [showNewForm, setShowNewForm] = useState(false);
-  const [newAnnouncement, setNewAnnouncement] = useState({
-    title: '',
-    description: ''
+/*
+  AddBooking_BI Component
+  Allows Building Incharge to search and book ONLY breakout rooms.
+  Uses a step-based UI flow:
+  Step 1 → Select slot, date, building
+  Step 2 → View available breakout rooms
+  Step 3 → Confirm booking
+*/
+const AddBooking_BI = () => {
+
+  // Controls which step of the booking process is active
+  const [step, setStep] = useState(1);
+
+  // Stores list of buildings fetched from backend
+  const [buildings, setBuildings] = useState([]);
+
+  // Stores breakout rooms available for selected slot
+  const [availableRooms, setAvailableRooms] = useState([]);
+
+  // Form state holding booking inputs
+  const [form, setForm] = useState({
+    slot: "",
+    date: "",
+    buildingId: "",
+    roomId: "",
+    purpose: ""
   });
 
+  /*
+    Logged-in Building Incharge ERP
+    Retrieved from localStorage after login
+  */
+  const BI_ERP = Number(localStorage.getItem("erp")) || 0;
+
+  /*
+    Slot-to-time mapping
+    Converts user-friendly slot labels into
+    backend-compatible start and end times
+  */
+  const slotMap = {
+    "08:30-09:45": { start: "08:30", end: "09:45" },
+    "10:00-11:15": { start: "10:00", end: "11:15" },
+    "11:30-12:45": { start: "11:30", end: "12:45" },
+    "1:00-2:15": { start: "13:00", end: "14:15" },
+    "2:30-3:45": { start: "14:30", end: "15:45" },
+    "4:00-5:15": { start: "16:00", end: "17:15" },
+    "5:30-6:45": { start: "17:30", end: "18:45" }
+  };
+
+  /*
+    Fetch list of buildings on component mount
+    Used to populate building dropdown
+  */
   useEffect(() => {
-    loadInchargeAnnouncements();
+    fetch("http://localhost:5000/api/buildings")
+      .then((res) => res.json())
+      .then((data) => setBuildings(data))
+      .catch((err) => console.log("Buildings Error:", err));
   }, []);
 
-  const loadInchargeAnnouncements = async () => {
-    try {
-      setLoading(true);
-      // Get logged in incharge
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
-        setError('Please login first');
-        setLoading(false);
-        return;
-      }
-      
-      const user = JSON.parse(userStr);
-      const inchargeId = user.Incharge_ID;
-      
-      if (!inchargeId) {
-        setError('Not logged in as Building Incharge');
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch(`http://localhost:5000/api/announcements/incharge/${inchargeId}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      if (data.success && data.data && Array.isArray(data.data)) {
-        // SIMPLE FIX: Just use the data as-is if it looks okay
-        const transformedData = data.data.map(item => {
-          // If item has announcement_id (lowercase), use it as-is
-          if (item && typeof item === 'object' && item.announcement_id !== undefined) {
-            return {
-              announcement_id: item.announcement_id || 0,
-              title: item.title || 'No Title',
-              description: item.description || 'No Description',
-              date_posted: item.date_posted || new Date().toISOString(),
-              created_date: item.created_date || null
-            };
-          }
-          
-          // If item has ANNOUNCEMENT_ID (uppercase), convert to lowercase
-          if (item && typeof item === 'object' && item.ANNOUNCEMENT_ID !== undefined) {
-            return {
-              announcement_id: item.ANNOUNCEMENT_ID || 0,
-              title: item.TITLE || 'No Title',
-              description: item.DESCRIPTION || 'No Description',
-              date_posted: item.DATE_POSTED || new Date().toISOString(),
-              created_date: item.CREATED_DATE || null
-            };
-          }
-          
-          // If it's an array (unlikely since your backend transforms it)
-          if (Array.isArray(item) && item.length >= 5) {
-            return {
-              announcement_id: item[0] || 0,
-              title: item[1] || 'No Title',
-              description: item[2] || 'No Description',
-              date_posted: item[3] || new Date().toISOString(),
-              created_date: item[4] || null
-            };
-          }
-          
-          return {
-            announcement_id: 0,
-            title: 'Error loading',
-            description: 'Could not parse announcement data',
-            date_posted: new Date().toISOString(),
-            created_date: null
-          };
-        });
-        
-        setMyAnnouncements(transformedData);
-      } else {
-        console.error('Invalid data structure:', data);
-        setError('Failed to fetch your announcements');
-      }
-    } catch (err) {
-      console.error('Error fetching incharge announcements:', err);
-      setError('Network error. Please check your connection.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePostAnnouncement = async (e) => {
-    e.preventDefault();
-    
-    try {
-      // Get logged in incharge
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
-        alert('Please login first');
-        return;
-      }
-      
-      const user = JSON.parse(userStr);
-      const inchargeId = user.Incharge_ID;
-      
-      if (!inchargeId) {
-        alert('Not logged in as Building Incharge');
-        return;
-      }
-
-      if (!newAnnouncement.title.trim() || !newAnnouncement.description.trim()) {
-        alert('Please fill in both title and description');
-        return;
-      }
-
-      const response = await fetch('http://localhost:5000/api/announcements/post', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          erp: inchargeId,
-          title: newAnnouncement.title,
-          description: newAnnouncement.description
-        })
-      });
-
-      const data = await response.json();
-      console.log('🔍 Post announcement response:', data);
-
-      if (response.ok && data.success) {
-        alert('✅ Announcement posted successfully!');
-        
-        // Reset form
-        setNewAnnouncement({ title: '', description: '' });
-        setShowNewForm(false);
-        
-        // Reload announcements
-        loadInchargeAnnouncements();
-        
-        // Trigger refresh for students
-        triggerStudentRefresh();
-      } else {
-        alert(`❌ ${data.error || 'Failed to post announcement'}`);
-      }
-    } catch (err) {
-      console.error('❌ Error posting announcement:', err);
-      alert('Network error. Please try again.');
-    }
-  };
-
-  const handleDeleteAnnouncement = async (announcementId) => {
-    if (!window.confirm('Are you sure you want to delete this announcement?')) {
+  /*
+    Searches available breakout rooms only
+    Calls backend availability API with selected filters
+  */
+  const handleSearchRooms = async () => {
+    if (!form.slot || !form.date || !form.buildingId) {
+      alert("Please fill all fields");
       return;
     }
 
+    const { start, end } = slotMap[form.slot];
+
     try {
-      // Get logged in incharge
-      const userStr = localStorage.getItem('user');
-      const user = JSON.parse(userStr);
-      const inchargeId = user.Incharge_ID;
+      const response = await fetch(
+        `http://localhost:5000/api/booking/available-rooms?date=${form.date}&startTime=${start}&endTime=${end}&buildingId=${form.buildingId}&roomType=${"Breakout".toUpperCase()}`
+      );
 
-      console.log('🗑️ Deleting announcement...');
-      const response = await fetch('http://localhost:5000/api/announcements/delete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          announcement_id: announcementId,
-          erp: inchargeId
-        })
-      });
+      const result = await response.json();
 
-      const data = await response.json();
-      console.log('🔍 Delete announcement response:', data);
-
-      if (response.ok && data.success) {
-        alert('✅ Announcement deleted successfully!');
-        loadInchargeAnnouncements();
-        triggerStudentRefresh();
+      if (result.success && result.data.length > 0) {
+        setAvailableRooms(result.data);
+        setStep(2);
       } else {
-        alert(`❌ ${data.error || 'Failed to delete announcement'}`);
+        alert("No breakout rooms available");
       }
-    } catch (err) {
-      console.error('❌ Error deleting announcement:', err);
-      alert('Network error. Please try again.');
+    } catch (error) {
+      console.log(error);
+      alert("Error fetching breakout rooms");
     }
   };
 
-  const triggerStudentRefresh = () => {
-    console.log('🔄 Students should refresh to see new announcement');
-  };
+  /*
+    Sends booking request to backend
+    Booking is created under Building Incharge ERP
+  */
+  const handleAddBooking = async () => {
+    const slot = slotMap[form.slot];
+    if (!slot) return alert("Invalid slot");
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Date not available';
-    
+    const { start, end } = slot;
+
     try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        return 'Invalid Date';
+      const response = await fetch(
+        "http://localhost:5000/api/booking/create-booking",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            erp: BI_ERP,
+            roomId: Number(form.roomId),
+            date: form.date,
+            startTime: start,
+            endTime: end,
+            purpose: form.purpose
+          })
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Booking Successfully Created!");
+      } else {
+        alert(result.error || "Failed to create booking");
       }
-      
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    } catch (err) {
-      return 'Date error';
+    } catch (error) {
+      console.log(error);
+      alert("Error creating booking");
     }
   };
 
-  if (loading) {
-    return (
-      <div className="announcements">
-        <h2>My Announcements</h2>
-        <div className="loading">Loading your announcements...</div>
-      </div>
-    );
-  }
+  /* -------------------- UI RENDERING -------------------- */
 
-  if (error) {
+  /*
+    STEP 1:
+    Select slot, date, and building
+  */
+  if (step === 1) {
     return (
-      <div className="announcements">
-        <h2>My Announcements</h2>
-        <div className="error-message">{error}</div>
-        <button onClick={loadInchargeAnnouncements} className="retry-btn">
-          Retry
-        </button>
-      </div>
-    );
-  }
+      <div>
+        <h2>Add Booking (Breakout Rooms - Building Incharge)</h2>
 
-  return (
-    <div className="announcements">
-      <div className="announcements-header">
-        <div>
-          <h2>My Announcements</h2>
-          <p>View and manage announcements you have posted</p>
+        <div className="form-group">
+          <label>Slot</label>
+          <select
+            value={form.slot}
+            onChange={(e) => setForm({ ...form, slot: e.target.value })}
+            className="filter-select"
+          >
+            <option value="">Select Slot</option>
+            {Object.keys(slotMap).map((slot) => (
+              <option key={slot} value={slot}>
+                {slot}
+              </option>
+            ))}
+          </select>
         </div>
-        
-        <button 
-          className="new-announcement-btn"
-          onClick={() => setShowNewForm(true)}
-        >
-          + New Announcement
+
+        <div className="form-group">
+          <label>Date</label>
+          <input
+            type="date"
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Building</label>
+          <select
+            onChange={(e) => setForm({ ...form, buildingId: e.target.value })}
+          >
+            <option value="">Select Building</option>
+            {buildings.map((b) => (
+              <option key={b.BUILDING_ID} value={b.BUILDING_ID}>
+                {b.BUILDING_NAME}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button className="maroon-btn" onClick={handleSearchRooms}>
+          Search Breakout Rooms
         </button>
       </div>
+    );
+  }
 
-      {/* New Announcement Form */}
-      {showNewForm && (
-        <div className="announcement-form">
-          <h3>Create New Announcement</h3>
-          <form onSubmit={handlePostAnnouncement}>
-            <div className="form-group">
-              <label htmlFor="title">Title *</label>
-              <input
-                type="text"
-                id="title"
-                value={newAnnouncement.title}
-                onChange={(e) => setNewAnnouncement({
-                  ...newAnnouncement,
-                  title: e.target.value
-                })}
-                placeholder="Enter announcement title"
-                required
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="description">Description *</label>
-              <textarea
-                id="description"
-                value={newAnnouncement.description}
-                onChange={(e) => setNewAnnouncement({
-                  ...newAnnouncement,
-                  description: e.target.value
-                })}
-                placeholder="Enter announcement details"
-                rows="4"
-                required
-              />
-            </div>
-            
-            <div className="form-actions">
-              <button type="submit" className="submit-btn">
-                Post Announcement
-              </button>
-              <button 
-                type="button" 
-                className="cancel-btn"
+  /*
+    STEP 2:
+    Display available breakout rooms
+  */
+  if (step === 2) {
+    return (
+      <div>
+        <button className="maroon-btn" onClick={() => setStep(1)}>
+          ← Back
+        </button>
+
+        <h2>Available Breakout Rooms</h2>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px", marginTop: "20px" }}>
+          {availableRooms.map((room) => (
+            <div key={room.ROOM_ID} style={{ background: "white", padding: "18px", borderRadius: "10px", border: "1px solid #ddd" }}>
+              <h3>{room.ROOM_NAME}</h3>
+              <p><b>Type:</b> {room.ROOM_TYPE}</p>
+              <p><b>Building:</b> {room.BUILDING_NAME}</p>
+
+              <button
+                className="maroon-btn"
+                style={{ width: "100%", marginTop: "10px" }}
                 onClick={() => {
-                  setShowNewForm(false);
-                  setNewAnnouncement({ title: '', description: '' });
+                  setForm({ ...form, roomId: room.ROOM_ID });
+                  setStep(3);
                 }}
               >
-                Cancel
+                Book Now
               </button>
             </div>
-          </form>
-        </div>
-      )}
-
-      {/* Announcements Count */}
-      <div style={{ 
-        background: '#f0f7ff', 
-        padding: '15px', 
-        margin: '15px 0',
-        borderRadius: '8px',
-        fontSize: '14px'
-      }}>
-        <div><strong>Total Announcements Posted:</strong> {myAnnouncements.length}</div>
-        <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-          You can edit or delete your announcements below
+          ))}
         </div>
       </div>
+    );
+  }
 
-      {/* Incharge's Announcements */}
-      <div className="announcements-list">
-        {myAnnouncements.length === 0 ? (
-          <div className="no-announcements">
-            <p>You haven't posted any announcements yet.</p>
-            <button 
-              onClick={() => setShowNewForm(true)}
-              className="create-first-btn"
-            >
-              Create Your First Announcement
+  /*
+    STEP 3:
+    Confirmation modal before final booking
+  */
+  if (step === 3) {
+    const selectedRoom = availableRooms.find(
+      (r) => r.ROOM_ID === form.roomId
+    );
+
+    return (
+      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div style={{ background: "white", padding: "30px", borderRadius: "10px", width: "90%", maxWidth: "500px" }}>
+          <h2>Confirm Breakout Room Booking</h2>
+
+          <p><b>Room:</b> {selectedRoom?.ROOM_NAME}</p>
+          <p><b>Building:</b> {selectedRoom?.BUILDING_NAME}</p>
+          <p><b>Date:</b> {form.date}</p>
+          <p><b>Slot:</b> {form.slot}</p>
+          <p><b>ERP:</b> {BI_ERP}</p>
+
+          <textarea
+            placeholder="Describe the purpose..."
+            onChange={(e) =>
+              setForm({ ...form, purpose: e.target.value })
+            }
+          />
+
+          <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+            <button className="maroon-btn" onClick={handleAddBooking}>
+              Confirm Booking
+            </button>
+
+            <button onClick={() => setStep(2)}>
+              Cancel
             </button>
           </div>
-        ) : (
-          myAnnouncements.map(announcement => (
-            <div key={announcement.announcement_id} className="announcement-card">
-              <div className="announcement-header">
-                <h3>{announcement.title}</h3>
-                <div className="announcement-actions">
-                  <span className="announcement-date">
-                    {formatDate(announcement.date_posted)}
-                  </span>
-                  <button 
-                    className="delete-btn"
-                    onClick={() => handleDeleteAnnouncement(announcement.announcement_id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-              
-              <div className="announcement-meta">
-                <span className="posted-by">
-                  Status: <strong>Posted</strong>
-                </span>
-                <span className="building">
-                  Posted on: <strong>{formatDate(announcement.date_posted)}</strong>
-                </span>
-              </div>
-              
-              <p className="announcement-content">
-                {announcement.description}
-              </p>
-              
-              <div style={{ 
-                fontSize: '12px', 
-                color: '#666',
-                marginTop: '10px',
-                paddingTop: '10px',
-                borderTop: '1px solid #eee'
-              }}>
-                Announcement ID: {announcement.announcement_id}
-              </div>
-            </div>
-          ))
-        )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
-export default ViewAnnouncements;
+export default AddBooking_BI;

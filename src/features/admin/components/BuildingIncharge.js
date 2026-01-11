@@ -1,5 +1,12 @@
 import React, { useState } from "react";
 
+/*
+  Import pages accessible to Building Incharge:
+  - Add announcements
+  - View announcements
+  - Add bookings (for breakout rooms)
+  - View bookings
+*/
 import AddAnnouncement from "../pages/AddAnnouncements";
 import ViewAnnouncements from "../pages/ViewAnnouncements";
 import AddBooking from "../pages/AddBooking_BI";
@@ -7,61 +14,81 @@ import ViewBooking from "../pages/ViewBooking_BI";
 
 import "./BuildingIncharge.css";
 
+/*
+  BuildingIncharge Dashboard Component
+  Acts as the main layout and navigation controller
+  for all Building Incharge functionalities.
+*/
 const BuildingIncharge = ({ onLogout }) => {
 
-  // DEFAULT: Add Booking opens first
+  // Controls which page/component is currently visible
+  // Default view is "Add Booking"
   const [active, setActive] = useState("add-booking");
 
+  /*
+    Renders the selected page based on sidebar navigation.
+    Avoids routing and keeps navigation state-based.
+  */
   const renderPage = () => {
     switch (active) {
-      case "add-booking": return <AddBooking />;
-      case "add-announcement": return <AddAnnouncement />;
-      case "view-booking": return <ViewBooking />;
-      case "view-announcement": return <ViewAnnouncements />;
-      default: return <AddBooking />;
+      case "add-booking": 
+        return <AddBooking />;
+      case "add-announcement": 
+        return <AddAnnouncement />;
+      case "view-booking": 
+        return <ViewBooking />;
+      case "view-announcement": 
+        return <ViewAnnouncements />;
+      default: 
+        return <AddBooking />;
     }
   };
 
   return (
     <div className="program-office-dashboard">
 
-      {/* Sidebar */}
+      {/* Sidebar Navigation Section */}
       <aside className="navigation-sidebar">
+
+        {/* Logged-in user information */}
         <div className="user-info-section">
-          <div className="profile-circle"><span>B</span></div>
+          <div className="profile-circle">
+            <span>B</span>
+          </div>
           <h3 className="user-name">Building Incharge</h3>
           <p className="user-program">Administrator</p>
         </div>
 
+        {/* Sidebar navigation buttons */}
         <nav className="navigation-tabs">
 
-          {/* 1️⃣ Add Booking */}
+          {/* Navigate to Add Booking screen */}
           <button
-            className={`nav-tab ${active==="add-booking" ? "active" : ""}`}
+            className={`nav-tab ${active === "add-booking" ? "active" : ""}`}
             onClick={() => setActive("add-booking")}
           >
             Add Booking
           </button>
 
-          {/* 2️⃣ Add Announcement */}
+          {/* Navigate to Add Announcement screen */}
           <button
-            className={`nav-tab ${active==="add-announcement" ? "active" : ""}`}
+            className={`nav-tab ${active === "add-announcement" ? "active" : ""}`}
             onClick={() => setActive("add-announcement")}
           >
             Add Announcement
           </button>
 
-          {/* 3️⃣ View Bookings */}
+          {/* Navigate to View Bookings screen */}
           <button
-            className={`nav-tab ${active==="view-booking" ? "active" : ""}`}
+            className={`nav-tab ${active === "view-booking" ? "active" : ""}`}
             onClick={() => setActive("view-booking")}
           >
             View Bookings
           </button>
 
-          {/* 4️⃣ View Announcements */}
+          {/* Navigate to View Announcements screen */}
           <button
-            className={`nav-tab ${active==="view-announcement" ? "active" : ""}`}
+            className={`nav-tab ${active === "view-announcement" ? "active" : ""}`}
             onClick={() => setActive("view-announcement")}
           >
             View Announcements
@@ -69,6 +96,7 @@ const BuildingIncharge = ({ onLogout }) => {
 
         </nav>
 
+        {/* Logout action */}
         <div className="logout-section">
           <button onClick={onLogout} className="sidebar-logout-btn">
             Logout
@@ -76,8 +104,10 @@ const BuildingIncharge = ({ onLogout }) => {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Dashboard Content Area */}
       <main className="dashboard-main">
+
+        {/* Dashboard header */}
         <header className="dashboard-header">
           <h1 className="header-title">Building Incharge Dashboard</h1>
           <p className="header-subtitle">
@@ -85,11 +115,13 @@ const BuildingIncharge = ({ onLogout }) => {
           </p>
         </header>
 
+        {/* Render selected page */}
         <div className="content-area-full">
           <div className="content-panel-full">
             {renderPage()}
           </div>
         </div>
+
       </main>
     </div>
   );
