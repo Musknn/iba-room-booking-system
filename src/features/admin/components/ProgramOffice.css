@@ -1,33 +1,63 @@
+/* Import shared dashboard styles */
 @import '../../shared/SharedDashboard.css';
 
+/* Main wrapper for Program Office dashboard */
 .program-office-dashboard {
+
+  /* Ensure dashboard takes full viewport height */
   min-height: 100vh;
+
+  /* Light gray background color */
   background: #f8f9fa;
+
+  /* Use flexbox for layout */
   display: flex;
 }
 
 /* Program Office Specific Styles */
 .program-office-content {
+
+  /* Make content take full available width */
   width: 100%;
 }
 
+/* Grid layout for multiple forms */
 .forms-grid {
+
+  /* Use CSS Grid for layout */
   display: grid;
+
+  /* Two equal-width columns */
   grid-template-columns: 1fr 1fr;
+
+  /* Space between grid items */
   gap: 35px;
+
+  /* Space below the grid */
   margin-bottom: 35px;
 }
 
+/* Styling for building and room forms */
 .building-form,
 .room-form {
+
+  /* Use flexbox for form layout */
   display: flex;
+
+  /* Stack form elements vertically */
   flex-direction: column;
+
+  /* Space between form fields */
   gap: 20px;
 }
 
 /* Responsive for forms grid */
 @media (max-width: 1024px) {
+
+  /* Apply styles when screen width is 1024px or less */
   .forms-grid {
+
+    /* Switch to single-column layout */
     grid-template-columns: 1fr;
   }
 }
